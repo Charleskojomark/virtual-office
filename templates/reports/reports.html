@@ -1,0 +1,468 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/reports.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Safe JSON data embedding -->
+{{ tasks_bar_data|json_script:"tasks-bar-data" }}
+{{ task_completion_data|json_script:"task-completion-data" }}
+{{ user_activity_data|json_script:"user-activity-data" }}
+
+<script>
+    // Initialize Chart.js instances
+    let tasksBarChart, taskCompletionChart, userActivityChart;
+
+    // Function to initialize or update charts
+    function initializeCharts() {
+        const tasksBarCtx = document.getElementById('tasksBarChart').getContext('2d');
+        const taskCompletionCtx = document.getElementById('taskCompletionChart').getContext('2d');
+        const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+
+        // Destroy existing charts if they exist
+        if (tasksBarChart) tasksBarChart.destroy();
+        if (taskCompletionChart) taskCompletionChart.destroy();
+        if (userActivityChart) userActivityChart.destroy();
+
+        // Chart data from Django context (safe JSON parsing)
+        const tasksBarData = JSON.parse(document.getElementById('tasks-bar-data').textContent);
+        const taskCompletionData = JSON.parse(document.getElementById('task-completion-data').textContent);
+        const userActivityData = JSON.parse(document.getElementById('user-activity-data').textContent);
+
+        // Tasks Completed vs Missed (Bar Chart)
+        tasksBarChart = new Chart(tasksBarCtx, {
+            type: 'bar',
+            data: {
+                labels: tasksBarData.labels,
+                datasets: [{
+                    label: 'Tasks',
+                    data: tasksBarData.data,
+                    backgroundColor: ['#4CAF50', '#F44336'],
+                    borderColor: ['#388E3C', '#D32F2F'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Tasks Completed vs Overdue', color: '#333', font: { size: 16 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Number of Tasks' }, ticks: { color: '#333' }, grid: { color: '#e0e0e0' } },
+                    x: { ticks: { color: '#333' }, grid: { display: false } }
+                }
+            }
+        });
+
+        // Task Completion (Line Chart)
+        taskCompletionChart = new Chart(taskCompletionCtx, {
+            type: 'line',
+            data: {
+                labels: taskCompletionData.labels,
+                datasets: [{
+                    label: 'Completed Tasks',
+                    data: taskCompletionData.data,
+                    backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                    borderColor: '#2196F3',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Monthly Task Completion', color: '#333', font: { size: 16 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Number of Tasks' }, ticks: { color: '#333' }, grid: { color: '#e0e0e0' } },
+                    x: { ticks: { color: '#333' }, grid: { display: false } }
+                }
+            }
+        });
+
+        // User Activity (Bar Chart)
+        userActivityChart = new Chart(userActivityCtx, {
+            type: 'bar',
+            data: {
+                labels: userActivityData.labels, // Full names or usernames
+                datasets: [{
+                    label: 'Assigned Tasks',
+                    data: userActivityData.data,
+                    backgroundColor: '#FFC107',
+                    borderColor: '#FFA000',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'User Activity', color: '#333', font: { size: 16 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Number of Tasks' }, ticks: { color: '#333' }, grid: { color: '#e0e0e0' } },
+                    x: { ticks: { color: '#333' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // Function to handle filter changes (reload page with query params)
+    function applyFilters() {
+        const dateFilter = document.getElementById('date-filter').value;
+        const userFilter = document.getElementById('user-filter').value;
+        const url = `/reports/?date-filter=${dateFilter}&user-filter=${userFilter}`;
+        window.location.href = url;
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeCharts();
+        document.getElementById('date-filter').addEventListener('change', applyFilters);
+        document.getElementById('user-filter').addEventListener('change', applyFilters);
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<header class="header">
+    <h1 class="greeting">Reports</h1>
+    <p class="subtitle">Analytics and insights for your productivity</p>
+    <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
+        <span class="notification-icon">🔔</span>
+        <span class="notification-badge">{{ notifications.count }}</span>
+    </div>
+</header>
+
+<div class="reports-container">
+    <!-- Filters -->
+    <div class="filters-container">
+        <div class="filter-group">
+            <label for="date-filter">Filter by Date:</label>
+            <select id="date-filter" class="filter-select">
+                <option value="all" {% if current_filters.date == 'all' %}selected{% endif %}>All Time</option>
+                <option value="today" {% if current_filters.date == 'today' %}selected{% endif %}>Today</option>
+                <option value="week" {% if current_filters.date == 'week' %}selected{% endif %}>This Week</option>
+                <option value="month" {% if current_filters.date == 'month' %}selected{% endif %}>This Month</option>
+                <option value="year" {% if current_filters.date == 'year' %}selected{% endif %}>This Year</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="user-filter">Filter by User:</label>
+            <select id="user-filter" class="filter-select">
+                <option value="all" {% if current_filters.user == 'all' %}selected{% endif %}>All Users</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {% if current_filters.user == user.id|stringformat:"s" %}selected{% endif %}>{{ user.full_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <h3 class="summary-title">Completed Tasks</h3>
+            <p class="summary-value">{{ summary.completed_tasks }}</p>
+        </div>
+        <div class="summary-card">
+            <h3 class="summary-title">Missed Appointments</h3>
+            <p class="summary-value">{{ summary.missed_appointments }}</p>
+        </div>
+        <div class="summary-card">
+            <h3 class="summary-title">New Registrations</h3>
+            <p class="summary-value">{{ summary.new_registrations }}</p>
+        </div>
+    </div>
+
+    <!-- New Users Table -->
+    <div class="new-users-section">
+        <h2 class="section-title">New Users This Month</h2>
+        <table id="new-users-table" class="new-users-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Date Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if new_users %}
+                    {% for user in new_users %}
+                        <tr>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="3">No new users this month</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-header">
+        <h2 class="section-title">Performance Dashboard</h2>
+        <div class="section-actions">
+            <button class="btn btn-primary" data-modal="export-report" data-format="pdf">Export PDF</button>
+            <button class="btn btn-primary" data-modal="export-report" data-format="excel">Export Excel</button>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="report-card">
+            <div class="report-header">
+                <h3 class="report-title">Tasks Completed vs Missed</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="tasksBarChart"></canvas>
+            </div>
+        </div>
+        <div class="report-card">
+            <div class="report-header">
+                <h3 class="report-title">Task Completion</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="taskCompletionChart"></canvas>
+            </div>
+        </div>
+        <div class="report-card">
+            <div class="report-header">
+                <h3 class="report-title">User Activity</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="userActivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.reports-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.filters-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-select {
+    padding: 8px;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    background: var(--background-white);
+    color: var(--text);
+    font-size: 0.9em;
+}
+
+body.dark-mode .filter-select {
+    background: var(--dark-surface);
+    border-color: var(--dark-primary);
+    color: var(--dark-text);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background: var(--background-white);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+}
+
+body.dark-mode .summary-card {
+    background: var(--dark-surface);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.summary-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 10px 0;
+}
+
+body.dark-mode .summary-title {
+    color: var(--dark-text);
+}
+
+.summary-value {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+}
+
+body.dark-mode .summary-value {
+    color: var(--dark-primary);
+}
+
+.new-users-section {
+    margin-bottom: 30px;
+}
+
+.new-users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--background-white);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .new-users-table {
+    background: var(--dark-surface);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.new-users-table th, .new-users-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+body.dark-mode .new-users-table th, body.dark-mode .new-users-table td {
+    border-bottom: 1px solid #444;
+    color: var(--dark-text);
+}
+
+.new-users-table th {
+    font-weight: 600;
+    color: var(--text);
+}
+
+body.dark-mode .new-users-table th {
+    color: var(--dark-text);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.section-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+body.dark-mode .section-title {
+    color: var(--dark-text);
+}
+
+.section-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 71, 171, 0.3);
+}
+
+body.dark-mode .btn-primary {
+    background: linear-gradient(135deg, var(--dark-primary), #5ba0f2);
+}
+
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 25px;
+}
+
+.report-card {
+    background: var(--background-white);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.report-card:hover {
+    transform: translateY(-5px);
+}
+
+body.dark-mode .report-card {
+    background: var(--dark-surface);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.report-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+body.dark-mode .report-title {
+    color: var(--dark-text);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+</style>
+{% endblock %}

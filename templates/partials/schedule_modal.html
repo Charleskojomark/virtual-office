@@ -1,0 +1,332 @@
+<div class="modal" id="scheduleModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Create New Meeting</h2>
+            <button class="close-btn" id="closeModalBtn" aria-label="Close modal">×</button>
+        </div>
+        <form id="scheduleForm">
+            <input type="hidden" id="scheduleId" name="schedule_id">
+            <div class="form-group">
+                <label for="scheduleTitle">Meeting Title</label>
+                <input type="text" id="scheduleTitle" name="title" required>
+                <div class="form-hint">Enter a concise title for the meeting</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="scheduleStart">Start Time</label>
+                    <input type="datetime-local" id="scheduleStart" name="start_time" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleEnd">End Time</label>
+                    <input type="datetime-local" id="scheduleEnd" name="end_time" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="isAllDay">All Day Event</label>
+                <input type="checkbox" id="isAllDay" name="is_all_day">
+                <div class="form-hint">Check if the meeting spans the entire day</div>
+            </div>
+            <div class="form-group">
+                <label for="scheduleDescription">Description</label>
+                <textarea id="scheduleDescription" name="description" rows="4"></textarea>
+                <div class="form-hint">Provide details about the meeting</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="meetingType">Meeting Type</label>
+                    <select id="meetingType" name="meeting_type">
+                        <option value="in-person">In-Person</option>
+                        <option value="virtual">Virtual</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location">
+                    <div class="form-hint">Specify the meeting location or link</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="participants">Participants</label>
+                <select id="participants" name="participants" multiple>
+                    <!-- Populated dynamically via JavaScript -->
+                </select>
+                <div class="form-hint">Select multiple participants using Ctrl/Cmd</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="calendar">Calendar</label>
+                    <select id="calendar" name="calendar">
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="team">Team</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="isRecurring">Recurring Meeting</label>
+                <input type="checkbox" id="isRecurring" name="is_recurring">
+                <div class="form-hint">Check if the meeting repeats</div>
+            </div>
+            <div class="form-group" id="recurrencePatternGroup" style="display: none;">
+                <label for="recurrencePattern">Recurrence Pattern</label>
+                <select id="recurrencePattern" name="recurrence_pattern">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="reminderMinutes">Reminder</label>
+                <select id="reminderMinutes" name="reminder_minutes">
+                    <option value="">No Reminder</option>
+                    <option value="5">5 minutes before</option>
+                    <option value="15">15 minutes before</option>
+                    <option value="30">30 minutes before</option>
+                    <option value="60">1 hour before</option>
+                </select>
+                <div class="form-hint">Set a reminder for the meeting</div>
+            </div>
+            <div class="form-group">
+                <label for="categories">Categories</label>
+                <select id="categories" name="categories" multiple>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-hint">Select categories to organize the meeting</div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="submit" class="btn-primary">Save Meeting</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--background-white);
+    border-radius: 12px;
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: modalSlideIn 0.3s ease;
+}
+
+body.dark-mode .modal-content {
+    background: var(--dark-surface);
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+body.dark-mode .modal-header {
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.modal-header h2 {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+body.dark-mode .modal-header h2 {
+    color: var(--dark-text);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: var(--primary);
+}
+
+body.dark-mode .close-btn {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-mode .close-btn:hover {
+    color: var(--dark-primary);
+}
+
+#scheduleForm {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+body.dark-mode .form-group label {
+    color: var(--dark-text);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9em;
+    color: var(--text);
+    background: var(--background-white);
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+    background: var(--dark-surface);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus,
+body.dark-mode .form-group textarea:focus {
+    border-color: var(--dark-primary);
+}
+
+.form-group select[multiple] {
+    height: 100px;
+}
+
+.form-hint {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+body.dark-mode .form-hint {
+    color: var(--dark-text-secondary);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background: var(--border-light);
+    color: var(--text);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: var(--border);
+    transform: translateY(-1px);
+}
+
+body.dark-mode .btn-secondary {
+    background: var(--dark-border);
+    color: var(--dark-text);
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: var(--dark-border-light);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 71, 171, 0.3);
+}
+
+body.dark-mode .btn-primary {
+    background: linear-gradient(135deg, var(--dark-primary), #5ba0f2);
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

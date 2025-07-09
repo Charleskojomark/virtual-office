@@ -1,0 +1,31 @@
+{% load static %}
+<div class="topbar">
+    <div class="topbar-left">
+        <h1 class="topbar-title">{% block navbar_title %}{% endblock %}</h1>
+    </div>
+    <div class="topbar-right">
+        <div class="topbar-search">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Search...">
+        </div>
+        <div class="topbar-actions">
+            <button class="topbar-btn" data-modal="notifications">
+                <i class="fas fa-bell"></i>
+                {% if notifications_count > 0 %}
+                <span class="notification-badge">{{ notifications_count }}</span>
+                {% endif %}
+            </button>
+            <div class="dropdown">
+                <button class="dropdown-toggle">
+                    <i class="fas fa-user"></i>
+                    <span>{{ user.name }}</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="{% url 'settings:settings' %}" class="dropdown-item">Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'auth:logout' %}" class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

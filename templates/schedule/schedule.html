@@ -1,0 +1,997 @@
+{% extends 'base.html' %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<header class="header">
+    <div class="header-left">
+        <h1 class="greeting">Schedule</h1>
+        <p class="subtitle">Manage your appointments and meetings</p>
+    </div>
+    <div class="header-right">
+        <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
+            <span class="notification-icon">🔔</span>
+            <span class="notification-badge">{{ notifications.count }}</span>
+        </div>
+        <button class="add-meeting-btn" id="addMeetingBtn">
+            <span class="plus-icon">+</span>
+            Add New Meeting
+        </button>
+    </div>
+</header>
+
+<div class="schedule-layout">
+    <div class="schedule-container">
+        <div class="calendar-controls">
+            <div class="view-controls">
+                <button class="view-btn active" id="monthView" data-view="dayGridMonth">Month</button>
+                <button class="view-btn" id="weekView" data-view="timeGridWeek">Week</button>
+                <button class="view-btn" id="dayView" data-view="timeGridDay">Day</button>
+            </div>
+            <div class="calendar-nav">
+                <button class="nav-btn" id="prevBtn">‹</button>
+                <h2 class="calendar-title" id="calendarTitle"></h2>
+                <button class="nav-btn" id="nextBtn">›</button>
+                <button class="today-btn" id="todayBtn">Today</button>
+            </div>
+        </div>
+        <div id="calendar"></div>
+        <!-- Event list below calendar -->
+        <div class="event-list">
+            <h3 id="selectedDateTitle">Today's Schedule</h3>
+            <div class="date-display" id="selectedDateDisplay"></div>
+            <div class="tasks-list" id="tasksList">
+                <div class="no-tasks" id="noTasks">
+                    <p>No meetings scheduled for this date</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Schedule Modal -->
+<div class="modal" id="scheduleModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Create New Meeting</h2>
+            <button class="close-btn" id="closeModalBtn">×</button>
+        </div>
+        <form id="scheduleForm">
+            <div class="form-group">
+                <label for="scheduleTitle">Meeting Title *</label>
+                <input type="text" id="scheduleTitle" name="title" required placeholder="Enter meeting title">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="scheduleStart">Start Date & Time *</label>
+                    <input type="datetime-local" id="scheduleStart" name="start_time" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleEnd">End Date & Time *</label>
+                    <input type="datetime-local" id="scheduleEnd" name="end_time" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="participants">Participants</label>
+                <select id="participants" name="participants" multiple>
+                    <!-- Populated dynamically via JavaScript -->
+                </select>
+                <small class="form-hint">Hold Ctrl/Cmd to select multiple participants</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="scheduleDescription">Description</label>
+                <textarea id="scheduleDescription" name="description" placeholder="Meeting agenda, notes, or additional details" rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingType">Meeting Type</label>
+                <select id="meetingType" name="meeting_type">
+                    <option value="in-person">In-Person</option>
+                    <option value="video-call">Video Call</option>
+                    <option value="phone-call">Phone Call</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingPlatform">Meeting Platform</label>
+                <select id="meetingPlatform" name="meeting_platform">
+                    <option value="">None</option>
+                    <option value="zoom">Zoom</option>
+                    <option value="microsoft-teams">Microsoft Teams</option>
+                    <option value="google-meet">Google Meet</option>
+                    <option value="webex">Webex</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingLink">Meeting Link</label>
+                <input type="url" id="meetingLink" name="meeting_link" placeholder="Enter meeting URL (e.g., https://zoom.us/j/...)">
+                <small class="form-hint">Provide a valid URL for the meeting link</small>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="submit" class="btn-primary" id="saveBtn">Save Meeting</button>
+            </div>
+            
+            <input type="hidden" id="scheduleId" name="id">
+        </form>
+    </div>
+</div>
+
+{% include 'partials/notifications_modal.html' %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.add-meeting-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.add-meeting-btn:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.plus-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.schedule-layout {
+    display: block;
+}
+
+.schedule-container {
+    background: var(--background-white);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.view-controls {
+    display: flex;
+    gap: 5px;
+    background: var(--border-light);
+    border-radius: 8px;
+    padding: 3px;
+}
+
+.view-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.view-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-btn {
+    background: var(--border-light);
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.calendar-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin: 0 10px;
+    min-width: 200px;
+    text-align: center;
+}
+
+.today-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.event-list {
+    margin-top: 20px;
+}
+
+.selected-date-info {
+    margin-bottom: 20px;
+}
+
+.selected-date-info h3 {
+    margin: 0 0 10px 0;
+    color: var(--text);
+}
+
+.date-display {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.tasks-list {
+    overflow-y: auto;
+}
+
+.task-item {
+    background: var(--border-light);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--accent);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.task-item:hover {
+    background: var(--primary-light);
+    transform: translateX(3px);
+}
+
+.task-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.task-time {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.task-platform {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.task-link, .join-now-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: var(--primary, #007bff);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-top: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.task-link:hover, .join-now-btn:hover {
+    background-color: var(--primary-light, #0056b3);
+}
+
+.join-now-btn:disabled {
+    background-color: var(--disabled-color, #cccccc);
+    cursor: not-allowed;
+}
+
+.task-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.task-action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.task-action-btn.delete {
+    background-color: var(--danger, #dc3545);
+    color: white;
+}
+
+.task-action-btn.delete:hover {
+    background-color: var(--danger-dark, #b02a37);
+}
+
+.no-tasks {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 20px;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--background-white);
+    border-radius: 15px;
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: var(--text);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.close-btn:hover {
+    color: var(--primary);
+}
+
+#scheduleForm {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-hint {
+    color: var(--text-secondary);
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.btn-secondary {
+    background: var(--border-light);
+    color: var(--text);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background: var(--primary-light);
+}
+
+/* Dark mode */
+body.dark-mode .schedule-container,
+body.dark-mode .modal-content {
+    background: var(--dark-surface);
+}
+
+body.dark-mode .add-meeting-btn {
+    background: var(--dark-primary);
+}
+
+body.dark-mode .view-controls {
+    background: var(--dark-border);
+}
+
+body.dark-mode .task-item {
+    background: var(--dark-border);
+}
+
+body.dark-mode .nav-btn {
+    background: var(--dark-border);
+    color: var(--dark-text);
+}
+
+body.dark-mode .task-link,
+body.dark-mode .join-now-btn {
+    background-color: var(--dark-primary, #1a73e8);
+}
+
+body.dark-mode .task-link:hover,
+body.dark-mode .join-now-btn:hover {
+    background-color: var(--dark-primary-light, #1557b0);
+}
+
+body.dark-mode .join-now-btn:disabled {
+    background-color: var(--dark-disabled-color, #666666);
+}
+
+body.dark-mode .task-action-btn.delete {
+    background-color: var(--dark-danger, #c82333);
+}
+
+body.dark-mode .task-action-btn.delete:hover {
+    background-color: var(--dark-danger-dark, #a71d2a);
+}
+
+/* FullCalendar customization */
+#calendar {
+    max-width: 100%;
+}
+
+.fc-toolbar-title {
+    color: var(--text);
+    font-size: 1.5em;
+}
+
+.fc-button {
+    background: var(--primary) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 5px !important;
+}
+
+.fc-button:hover {
+    background: var(--primary-light) !important;
+}
+
+.fc-daygrid-day:hover {
+    background: var(--border-light);
+}
+
+.fc-event {
+    background: var(--accent);
+    border: 1px solid var(--accent-dark);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.fc-daygrid-day.fc-day-today {
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+.fc-day-selected {
+    background: rgba(var(--primary-rgb), 0.2) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .calendar-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    let currentEvents = [];
+    let selectedDate = new Date();
+    const currentUserEmail = "{{ user.email }}"; // Pass current user's email for permission checks
+
+    // Fetch participants from the backend
+    function fetchParticipants() {
+        fetch('/schedule/api/participants/', {
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const participantsSelect = document.getElementById('participants');
+            participantsSelect.innerHTML = ''; // Clear existing options
+            data.participants.forEach(participant => {
+                const option = document.createElement('option');
+                option.value = participant.email;
+                option.textContent = participant.first_name || participant.last_name 
+                    ? `${participant.first_name || ''} ${participant.last_name || ''}`.trim()
+                    : participant.email;
+                participantsSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching participants:', error);
+            showNotification('Error loading participants', 'error');
+        });
+    }
+
+    // Initialize calendar
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: false, // We'll use custom controls
+        events: '/schedule/api/events/', // Your Django API endpoint
+        eventClick: function(info) {
+            // Only allow opening modal for editing if user is creator
+            if (info.event.extendedProps.created_by === currentUserEmail) {
+                openModal(info.event);
+            } else {
+                showNotification('You can only view this meeting.', 'info');
+            }
+        },
+        dateClick: function(info) {
+            selectedDate = info.date;
+            updateSelectedDateDisplay();
+            updateTasksList();
+            highlightSelectedDate(info.dateStr);
+        },
+        eventsSet: function(events) {
+            currentEvents = events;
+            updateTasksList();
+        }
+    });
+
+    calendar.render();
+
+    // Update calendar title
+    function updateCalendarTitle() {
+        const titleEl = document.getElementById('calendarTitle');
+        if (titleEl) {
+            titleEl.textContent = calendar.view.title;
+        }
+    }
+
+    // Initial setup
+    fetchParticipants();
+    updateCalendarTitle();
+    updateSelectedDateDisplay();
+    updateTasksList();
+
+    // View controls
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const view = this.dataset.view;
+            calendar.changeView(view);
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            updateCalendarTitle();
+        });
+    });
+
+    // Navigation controls
+    document.getElementById('prevBtn').addEventListener('click', function() {
+        calendar.prev();
+        updateCalendarTitle();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', function() {
+        calendar.next();
+        updateCalendarTitle();
+    });
+
+    document.getElementById('todayBtn').addEventListener('click', function() {
+        calendar.today();
+        selectedDate = new Date();
+        updateSelectedDateDisplay();
+        updateTasksList();
+        updateCalendarTitle();
+    });
+
+    // Modal controls
+    const modal = document.getElementById('scheduleModal');
+    const addMeetingBtn = document.getElementById('addMeetingBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const scheduleForm = document.getElementById('scheduleForm');
+
+    addMeetingBtn.addEventListener('click', function() {
+        openModal();
+    });
+
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    scheduleForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveEvent();
+    });
+
+    function openModal(event = null) {
+        const modalTitle = document.getElementById('modalTitle');
+        const form = document.getElementById('scheduleForm');
+
+        if (event) {
+            // Edit mode (only for creator)
+            if (event.extendedProps.created_by !== currentUserEmail) {
+                return; // Should not reach here due to eventClick check
+            }
+            modalTitle.textContent = 'Edit Meeting';
+            document.getElementById('scheduleId').value = event.id;
+            document.getElementById('scheduleTitle').value = event.title;
+            document.getElementById('scheduleStart').value = event.start.toISOString().slice(0, 16);
+            document.getElementById('scheduleEnd').value = event.end ? event.end.toISOString().slice(0, 16) : '';
+            document.getElementById('scheduleDescription').value = event.extendedProps.description || '';
+            document.getElementById('meetingType').value = event.extendedProps.meeting_type || 'other';
+            document.getElementById('meetingPlatform').value = event.extendedProps.meeting_platform || '';
+            document.getElementById('meetingLink').value = event.extendedProps.meeting_link || '';
+
+            const participantsSelect = document.getElementById('participants');
+            Array.from(participantsSelect.options).forEach(option => {
+                option.selected = event.extendedProps.participants.includes(option.value);
+            });
+        } else {
+            // Create mode
+            modalTitle.textContent = 'Create New Meeting';
+            form.reset();
+            document.getElementById('scheduleId').value = '';
+            document.getElementById('meetingPlatform').value = '';
+            document.getElementById('meetingLink').value = '';
+
+            const startDate = new Date(selectedDate);
+            startDate.setHours(9, 0, 0, 0);
+            document.getElementById('scheduleStart').value = startDate.toISOString().slice(0, 16);
+
+            const endDate = new Date(startDate);
+            endDate.setHours(10, 0, 0, 0);
+            document.getElementById('scheduleEnd').value = endDate.toISOString().slice(0, 16);
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    function saveEvent() {
+        const formData = new FormData(scheduleForm);
+        const eventData = {
+            title: formData.get('title'),
+            start_time: formData.get('start_time'),
+            end_time: formData.get('end_time'),
+            description: formData.get('description'),
+            meeting_type: formData.get('meeting_type'),
+            meeting_platform: formData.get('meeting_platform'),
+            meeting_link: formData.get('meeting_link'),
+            participants: Array.from(document.getElementById('participants').selectedOptions).map(opt => opt.value)
+        };
+
+        const eventId = document.getElementById('scheduleId').value;
+        const url = eventId ? `/schedule/api/events/${eventId}/` : '/schedule/api/events/';
+        const method = eventId ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(eventData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                calendar.refetchEvents();
+                closeModal();
+                showNotification('Meeting saved successfully!');
+            } else {
+                showNotification('Error saving meeting', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error saving meeting', 'error');
+        });
+    }
+
+    function deleteEvent(eventId) {
+        console.log('Attempting to delete event with ID:', eventId); // Debug log
+        if (!confirm('Are you sure you want to delete this meeting?')) {
+            console.log('Deletion cancelled by user');
+            return;
+        }
+
+        fetch(`/schedule/api/events/${eventId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => {
+            console.log('DELETE response status:', response.status); // Debug log
+            if (response.ok) {
+                calendar.refetchEvents();
+                showNotification('Meeting deleted successfully!');
+            } else {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Failed to delete meeting');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting event:', error); // Debug log
+            showNotification('Error deleting meeting: ' + error.message, 'error');
+        });
+    }
+
+    function updateSelectedDateDisplay() {
+        const titleEl = document.getElementById('selectedDateTitle');
+        const displayEl = document.getElementById('selectedDateDisplay');
+
+        const isToday = selectedDate.toDateString() === new Date().toDateString();
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const dateStr = selectedDate.toLocaleDateString('en-US', { 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+
+        titleEl.textContent = isToday ? "Today's Schedule" : `${dayName}'s Schedule`;
+        displayEl.textContent = dateStr;
+    }
+
+    function updateTasksList() {
+        const tasksList = document.getElementById('tasksList');
+        const noTasks = document.getElementById('noTasks');
+
+        const selectedDateStr = selectedDate.toISOString().split('T')[0];
+        const dayEvents = currentEvents.filter(event => {
+            const eventDate = new Date(event.start).toISOString().split('T')[0];
+            return eventDate === selectedDateStr;
+        });
+
+        tasksList.innerHTML = '';
+
+        if (dayEvents.length === 0) {
+            tasksList.appendChild(noTasks);
+        } else {
+            dayEvents
+                .sort((a, b) => new Date(a.start) - new Date(b.start))
+                .forEach(event => {
+                    const taskItem = createTaskItem(event);
+                    tasksList.appendChild(taskItem);
+                });
+        }
+    }
+
+    function createTaskItem(event) {
+        const taskItem = document.createElement('div');
+        taskItem.className = 'task-item';
+
+        // Only allow clicking to open modal if user is creator
+        if (event.extendedProps.created_by === currentUserEmail) {
+            taskItem.addEventListener('click', () => openModal(event));
+        }
+
+        const startTime = new Date(event.start).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit' 
+        });
+        const endTime = event.end ? new Date(event.end).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit' 
+        }) : '';
+
+        let platformHtml = '';
+        if (event.extendedProps.meeting_platform) {
+            platformHtml = `<div class="task-platform">Platform: ${event.extendedProps.meeting_platform}</div>`;
+        }
+
+        let linkHtml = '';
+        if (event.extendedProps.meeting_link) {
+            const now = new Date();
+            const start = new Date(event.start);
+            const end = new Date(event.end);
+            const fifteenMinutesBefore = new Date(start.getTime() - 15 * 60 * 1000);
+            const isActive = now >= fifteenMinutesBefore && now <= end;
+            linkHtml = `<a href="${event.extendedProps.meeting_link}" class="join-now-btn" target="_blank" ${isActive ? '' : 'disabled'} data-start-time="${event.start.toISOString()}" data-end-time="${event.end.toISOString()}">Join Now</a>`;
+        }
+
+        let actionsHtml = '';
+        if (event.extendedProps.created_by === currentUserEmail) {
+            actionsHtml = `
+                <div class="task-actions">
+                    <button class="task-action-btn delete" data-event-id="${event.id}">Delete</button>
+                </div>
+            `;
+        }
+
+        taskItem.innerHTML = `
+            <div class="task-title">${event.title}</div>
+            <div class="task-time">${startTime}${endTime ? ' - ' + endTime : ''}</div>
+            ${platformHtml}
+            ${linkHtml}
+            ${actionsHtml}
+        `;
+
+        // Add event listener for delete button
+        if (event.extendedProps.created_by === currentUserEmail) {
+            taskItem.querySelector('.task-action-btn.delete').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteEvent(event.id);
+            });
+        }
+
+        return taskItem;
+    }
+
+    function highlightSelectedDate(dateStr) {
+        document.querySelectorAll('.fc-day-selected').forEach(el => {
+            el.classList.remove('fc-day-selected');
+        });
+
+        const dayEl = document.querySelector(`[data-date="${dateStr}"]`);
+        if (dayEl) {
+            dayEl.classList.add('fc-day-selected');
+        }
+    }
+
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification-toast ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        console.log('CSRF Token:', cookieValue); // Debug log
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}

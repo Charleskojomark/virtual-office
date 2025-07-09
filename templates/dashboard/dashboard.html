@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+<script>
+    const users = JSON.parse('{{ users|escapejs }}');
+</script>
+{% block content %}
+<header class="header">
+    <h1 class="greeting">
+        {% if now.hour < 12 %}Good morning{% elif now.hour < 17 %}Good afternoon{% else %}Good evening{% endif %}, {{ user.get_full_name }}
+    </h1>
+    <p class="subtitle">Welcome to your team workspace and dashboard</p>
+    <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
+        <span class="notification-icon">🔔</span>
+        <span class="notification-badge">{{ notifications.count }}</span>
+    </div>
+</header>
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">TOTAL TASKS</h2>
+            <span class="task-count" id="taskCount">{{ tasks.count }}</span>
+        </div>
+        <div class="task-progress">
+            <div class="task-progress-fill" id="taskProgressFill" style="width: {{ task_completion_percentage }}%"></div>
+        </div>
+        <p class="task-text" id="taskText">You have {{ tasks.remaining }} tasks remaining out of {{ tasks.count }} total tasks</p>
+        <button class="view-tasks-btn" data-url="{% url 'tasks:tasks' %}">View Tasks →</button>
+    </div>
+    <div class="card appointments-card">
+        <div class="card-header">
+            <h2 class="card-title">APPOINTMENTS</h2>
+        </div>
+        {% for appointment in appointments %}
+        <div class="appointment-item">
+            <div class="appointment-time">{{ appointment.start_time|date:"h:i A, F jS, Y" }}</div>
+            <div class="appointment-title">{{ appointment.title }}</div>
+        </div>
+        {% empty %}
+        <p>No appointments scheduled.</p>
+        {% endfor %}
+    </div>
+</div>
+<div class="dashboard-grid">
+    <div class="card messages-card">
+        <div class="card-header">
+            <h2 class="card-title">TOTAL MESSAGES</h2>
+            <span class="message-count">{{ messages.count }}</span>
+        </div>
+        <p>You have {{ messages.unread }} new messages of {{ messages.count }} total group messages</p>
+        <button class="view-tasks-btn" style="border-color: white; color: white;" data-url="{% url 'messaging:messaging' %}">View Messages →</button>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">QUICK ACTIONS</h2>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="view-tasks-btn" data-url="{% url 'tasks:tasks' %}" data-modal="add-task">New Task</button>
+            <button class="view-tasks-btn" data-url="{% url 'schedule:schedule' %}" data-modal="schedule">Schedule Meeting</button>
+            <button class="view-tasks-btn" data-url="{% url 'messaging:messaging' %}">Send Message</button>
+        </div>
+    </div>
+    <div class="card activity-feed-card">
+        <div class="card-header">
+            <h2 class="card-title">RECENT ACTIVITY</h2>
+        </div>
+        <div class="activity-feed">
+            {% for activity in activities %}
+            <div class="activity-item">
+                <div class="activity-description">{{ activity.description }}</div>
+                <div class="activity-timestamp">{{ activity.timestamp|timesince }} ago</div>
+            </div>
+            {% empty %}
+            <p>No recent activity.</p>
+            {% endfor %}
+        </div>
+        <button class="view-tasks-btn" data-url="{% url 'dashboard:activities' %}">View All →</button>
+    </div>
+</div>
+<div class="meetings-section">
+    <div class="meetings-header">
+        <h2 class="meetings-title">Your Upcoming Meetings</h2>
+        <div class="header-controls">
+            <input type="text" class="search-bar" placeholder="Search meetings, guests, or topics..." id="searchInput" aria-label="Search meetings">
+            <button class="sort-btn" aria-label="Sort meetings">Sort ↓</button>
+            <button class="sort-btn dark-mode-btn" aria-label="Toggle dark mode">Toggle Dark Mode</button>
+        </div>
+    </div>
+    <div class="meetings-table-wrapper">
+        <table class="meetings-table">
+            <thead>
+                <tr>
+                    <th>Meeting</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Participants</th>
+                    <th>Meeting Type</th>
+                    <th>Platform</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="meetingsTableBody">
+                {% for meeting in meetings %}
+                <tr>
+                    <td>{{ meeting.title }}</td>
+                    <td>{{ meeting.start_time|date:"F jS, Y" }}</td>
+                    <td><span class="time-badge">{{ meeting.start_time|date:"h:i A" }}</span></td>
+                    <td>
+                        {% for participant in meeting.participants.all %}
+                            {{ participant.get_full_name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            None
+                        {% endfor %}
+                    </td>
+                    <td><span class="status-badge">{{ meeting.get_meeting_type_display|default:"In-Person" }}</span></td>
+                    <td><span class="priority-{{ meeting.meeting_platform|lower|default:'none' }}">{{ meeting.get_meeting_platform_display|default:"None" }}</span></td>
+                    <td>
+                        {% if meeting.meeting_link %}
+                            <a href="{{ meeting.meeting_link }}" class="join-now-btn" target="_blank" data-start-time="{{ meeting.start_time.isoformat }}" data-end-time="{{ meeting.end_time.isoformat }}" aria-label="Join meeting: {{ meeting.title }}">Join Now</a>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No meetings scheduled.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include 'partials/notifications_modal.html' %}
+{% endblock %}
+{% block extra_js %}
+<style>
+    .activity-feed-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .activity-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    .activity-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+    .activity-description {
+        font-size: 0.9em;
+        color: var(--text-primary);
+    }
+    .activity-timestamp {
+        font-size: 0.8em;
+        color: var(--text-secondary);
+    }
+    body.dark-mode .activity-item {
+        border-bottom: 1px solid var(--dark-border);
+    }
+    body.dark-mode .activity-description {
+        color: var(--dark-text-primary);
+    }
+    body.dark-mode .activity-timestamp {
+        color: var(--dark-text-secondary);
+    }
+    .meetings-table th, .meetings-table td {
+        padding: 10px;
+        text-align: left;
+        vertical-align: middle;
+    }
+    .join-now-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: var(--primary-color, #007bff);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .join-now-btn:hover {
+        background-color: var(--primary-hover, #0056b3);
+    }
+    .join-now-btn:disabled {
+        background-color: var(--disabled-color, #cccccc);
+        cursor: not-allowed;
+    }
+    body.dark-mode .join-now-btn {
+        background-color: var(--dark-primary-color, #1a73e8);
+    }
+    body.dark-mode .join-now-btn:hover {
+        background-color: var(--dark-primary-hover, #1557b0);
+    }
+    body.dark-mode .join-now-btn:disabled {
+        background-color: var(--dark-disabled-color, #666666);
+    }
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1000;
+    }
+    .toast-success {
+        background: #2ed573;
+    }
+    .toast-error {
+        background: #ff4757;
+    }
+    .toast.show {
+        opacity: 1;
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Handle button navigation
+    document.querySelectorAll('.view-tasks-btn[data-url]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.dataset.modal) {
+                const modal = document.getElementById(btn.dataset.modal);
+                if (modal) {
+                    modal.style.display = 'flex';
+                } else {
+                    window.location.href = btn.dataset.url;
+                }
+            } else {
+                window.location.href = btn.dataset.url;
+            }
+        });
+    });
+
+    // Enable/disable Join Now buttons based on meeting time
+    document.querySelectorAll('.join-now-btn').forEach(btn => {
+        const startTime = new Date(btn.dataset.startTime);
+        const endTime = new Date(btn.dataset.endTime);
+        const now = new Date();
+        const fifteenMinutesBefore = new Date(startTime.getTime() - 15 * 60 * 1000);
+        if (now < fifteenMinutesBefore || now > endTime) {
+            btn.disabled = true;
+            btn.style.cursor = 'not-allowed';
+        }
+    });
+
+    // Periodically fetch task updates
+    function fetchTaskUpdates() {
+        fetch('/dashboard/task_updates/', {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const taskCountEl = document.getElementById('taskCount');
+                const taskProgressFillEl = document.getElementById('taskProgressFill');
+                const taskTextEl = document.getElementById('taskText');
+                const newCount = data.tasks.count;
+                const newRemaining = data.tasks.remaining;
+                const newPercentage = data.tasks.completion_percentage;
+
+                // Only update DOM if data has changed
+                if (taskCountEl.textContent != newCount || taskTextEl.textContent.includes(newRemaining) === false) {
+                    taskCountEl.textContent = newCount;
+                    taskProgressFillEl.style.width = `${newPercentage}%`;
+                    taskTextEl.textContent = `You have ${newRemaining} tasks remaining out of ${newCount} total tasks`;
+                    showToast('Task data updated', 'success');
+                }
+            } else {
+                showToast('Error fetching task updates: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching task updates:', error);
+            showToast('Error fetching task updates', 'error');
+        });
+    }
+
+    // Initial fetch and set interval for updates
+    fetchTaskUpdates();
+    setInterval(fetchTaskUpdates, 30000);
+
+    // Modal close functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+        }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

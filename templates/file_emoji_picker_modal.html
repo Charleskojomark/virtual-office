@@ -1,0 +1,26 @@
+<div class="modal" id="fileEmojiPickerModal" role="dialog" aria-labelledby="fileEmojiPickerTitle" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="fileEmojiPickerTitle">Add File or Emoji</h2>
+            <button class="modal-close" aria-label="Close modal">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="emoji-grid">
+                <button class="emoji-btn" data-emoji="😊" aria-label="Smile emoji">😊</button>
+                <button class="emoji-btn" data-emoji="👍" aria-label="Thumbs up emoji">👍</button>
+                <button class="emoji-btn" data-emoji="🚀" aria-label="Rocket emoji">🚀</button>
+                <button class="emoji-btn" data-emoji="🎉" aria-label="Party emoji">🎉</button>
+                <button class="emoji-btn" data-emoji="📅" aria-label="Calendar emoji">📅</button>
+                <button class="emoji-btn" data-emoji="✅" aria-label="Checkmark emoji">✅</button>
+            </div>
+            <div class="form-group">
+                <label for="fileUpload">Upload File</label>
+                <input type="file" id="fileUpload" name="file" class="auth-input" accept="image/*,video/*,.pdf" aria-label="Upload file">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn" id="submitFileEmoji">Insert</button>
+            <button class="modal-btn modal-btn--secondary" onclick="document.getElementById('fileEmojiPickerModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>

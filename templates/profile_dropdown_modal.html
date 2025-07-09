@@ -1,0 +1,17 @@
+<div class="modal modal--dropdown" id="profileDropdownModal" role="dialog" aria-labelledby="profileDropdownTitle" style="display: none;">
+    <div class="modal-content modal-content--dropdown">
+        <div class="modal-body">
+            <ul class="profile-list">
+                <li class="profile-list__item">
+                    <a href="{% url 'settings' %}" class="profile-list__link">View Profile</a>
+                </li>
+                <li class="profile-list__item">
+                    <a href="{% url 'settings' %}" class="profile-list__link">Settings</a>
+                </li>
+                <li class="profile-list__item">
+                    <a href="{% url 'logout' %}" class="profile-list__link">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

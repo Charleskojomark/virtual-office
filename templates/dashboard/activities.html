@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="settings-container">
+    <h1>Activity Log</h1>
+    <div class="activity-feed">
+        {% for activity in activities %}
+        <div class="activity-item">
+            <div class="activity-description">{{ activity.description }}</div>
+            <div class="activity-timestamp">{{ activity.timestamp|timesince }} ago</div>
+        </div>
+        {% empty %}
+        <p>No activities found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

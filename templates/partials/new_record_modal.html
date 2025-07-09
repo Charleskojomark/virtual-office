@@ -1,0 +1,127 @@
+<div id="new-record-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>Add New Record</h2>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="post" action="{% url 'records:add_record' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="record-name">Name:</label>
+                <input type="text" id="record-name" name="name" required />
+            </div>
+            <div class="form-group">
+                <label for="record-type">Record Type:</label>
+                <select id="record-type" name="record_type" required>
+                    <option value="">Select a type</option>
+                    {% for record_type in record_types %}
+                        <option value="{{ record_type.id }}">{{ record_type.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="record-status">Status:</label>
+                <select id="record-status" name="status">
+                    {% for status in status_choices %}
+                        <option value="{{ status.0 }}">{{ status.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="auth-btn">Save</button>
+                <button type="button" class="auth-btn cancel-btn" onclick="closeNewRecordModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--background-white);
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .modal-content {
+    background: var(--dark-surface);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+}
+
+body.dark-mode .form-group label {
+    color: var(--dark-text);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 0.9em;
+    color: var(--text);
+    background: var(--background-white);
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select {
+    background: var(--dark-surface);
+    border-color: var(--dark-primary);
+    color: var(--dark-text);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.cancel-btn {
+    background: #ff4757;
+}
+
+.cancel-btn:hover {
+    background: #ff3742;
+}
+
+.error {
+    color: #ff4757;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+</style>
+
+<script>
+function openNewRecordModal() {
+    document.getElementById('new-record-modal').style.display = 'flex';
+}
+
+function closeNewRecordModal() {
+    document.getElementById('new-record-modal').style.display = 'none';
+}
+</script>

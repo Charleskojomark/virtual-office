@@ -1,0 +1,24 @@
+<div class="modal" id="newRecordModal" role="dialog" aria-labelledby="newRecordTitle" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="newRecordTitle">Add Record</h2>
+            <button class="modal-close" aria-label="Close modal">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="newRecordForm" method="POST" action="{% url 'records:add_record' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="recordName">Name</label>
+                    <input type="text" id="recordName" name="name" required class="auth-input">
+                </div>
+                <div class="form-group">
+                    <label for="recordCategory">Category</label>
+                    <input type="text" id="recordCategory" name="category" required class="auth-input">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn" id="saveRecord">Save</button>
+        </div>
+    </div>
+</div>

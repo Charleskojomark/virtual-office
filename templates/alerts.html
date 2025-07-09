@@ -1,0 +1,386 @@
+<!-- templates/components/alerts.html -->
+<!-- Reusable Django Flash Messages Component -->
+
+{% if messages %}
+<div class="alerts-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert" aria-live="polite">
+        <div class="alert-content">
+            <div class="alert-icon">
+                {% if message.tags == 'success' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"></path>
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                {% elif message.tags == 'warning' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                {% elif message.tags == 'info' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                {% else %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                {% endif %}
+            </div>
+            <div class="alert-message">
+                {{ message|safe }}
+            </div>
+        </div>
+        <button type="button" class="alert-close" aria-label="Close" onclick="this.parentElement.remove()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<style>
+:root {
+    --primary-color: #0047AB;
+    --accent-color: #FFA500;
+    --background-color: #F5F7FA;
+    --text-color: #333333;
+    --white: #FFFFFF;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --border-radius: 8px;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+.alerts-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    width: 100%;
+}
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    opacity: 1;
+    transform: translateX(0);
+    transition: var(--transition);
+    animation: slideIn 0.3s ease-out;
+    font-family: 'Inter', 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.alert-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+}
+
+.alert-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.alert-message {
+    flex: 1;
+    word-wrap: break-word;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 12px;
+    border-radius: 4px;
+    transition: var(--transition);
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.alert-close:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.alert-close:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Success Alert */
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-success .alert-icon {
+    color: var(--success-color);
+}
+
+.alert-success .alert-close:hover {
+    background-color: rgba(21, 87, 36, 0.1);
+}
+
+/* Error/Danger Alert */
+.alert-error,
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alert-error .alert-icon,
+.alert-danger .alert-icon {
+    color: var(--error-color);
+}
+
+.alert-error .alert-close:hover,
+.alert-danger .alert-close:hover {
+    background-color: rgba(114, 28, 36, 0.1);
+}
+
+/* Warning Alert */
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.alert-warning .alert-icon {
+    color: var(--warning-color);
+}
+
+.alert-warning .alert-close:hover {
+    background-color: rgba(133, 100, 4, 0.1);
+}
+
+/* Info Alert */
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.alert-info .alert-icon {
+    color: var(--info-color);
+}
+
+.alert-info .alert-close:hover {
+    background-color: rgba(12, 84, 96, 0.1);
+}
+
+/* Default Alert */
+.alert-debug,
+.alert-default {
+    background-color: var(--background-color);
+    border-color: #dee2e6;
+    color: var(--text-color);
+}
+
+.alert-debug .alert-icon,
+.alert-default .alert-icon {
+    color: var(--primary-color);
+}
+
+.alert-debug .alert-close:hover,
+.alert-default .alert-close:hover {
+    background-color: rgba(51, 51, 51, 0.1);
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.alert.removing {
+    animation: slideOut 0.3s ease-in forwards;
+}
+
+/* Auto-dismiss functionality */
+.alert-auto-dismiss {
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-auto-dismiss::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: rgba(0, 0, 0, 0.2);
+    animation: progressBar 5s linear forwards;
+}
+
+@keyframes progressBar {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .alerts-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .alert {
+        margin-bottom: 8px;
+        padding: 14px;
+    }
+    
+    .alert-content {
+        gap: 10px;
+    }
+    
+    .alert-close {
+        margin-left: 8px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .alert-success {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-color: rgba(40, 167, 69, 0.3);
+        color: #7dcea0;
+    }
+    
+    .alert-error,
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #f1948a;
+    }
+    
+    .alert-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: #f4d03f;
+    }
+    
+    .alert-info {
+        background-color: rgba(23, 162, 184, 0.2);
+        border-color: rgba(23, 162, 184, 0.3);
+        color: #85c1e9;
+    }
+    
+    .alert-debug,
+    .alert-default {
+        background-color: rgba(0, 71, 171, 0.2);
+        border-color: rgba(0, 71, 171, 0.3);
+        color: #aed6f1;
+    }
+}
+
+/* Accessibility enhancements */
+.alert:focus-within {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .alert {
+        animation: none;
+        transition: none;
+    }
+    
+    .alert-auto-dismiss::before {
+        animation: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        // Add auto-dismiss class for visual indicator
+        alert.classList.add('alert-auto-dismiss');
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(function() {
+            dismissAlert(alert);
+        }, 5000);
+    });
+    
+    // Close button functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.alert-close')) {
+            const alert = e.target.closest('.alert');
+            dismissAlert(alert);
+        }
+    });
+    
+    // Keyboard support for closing alerts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                dismissAlert(alerts[alerts.length - 1]);
+            }
+        }
+    });
+    
+    function dismissAlert(alert) {
+        alert.classList.add('removing');
+        setTimeout(function() {
+            alert.remove();
+        }, 300);
+    }
+});
+</script>

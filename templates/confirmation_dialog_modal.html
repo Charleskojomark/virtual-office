@@ -1,0 +1,15 @@
+<div class="modal" id="confirmationDialogModal" role="dialog" aria-labelledby="confirmationDialogTitle" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="confirmationDialogTitle">Confirm Action</h2>
+            <button class="modal-close" aria-label="Close modal">×</button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text" id="confirmationMessage">Are you sure you want to proceed with this action?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn" id="confirmAction">Confirm</button>
+            <button class="modal-btn modal-btn--secondary" onclick="document.getElementById('confirmationDialogModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>

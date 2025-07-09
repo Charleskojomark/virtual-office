@@ -1,0 +1,175 @@
+<div id="addTaskModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" data-modal-close>×</span>
+        <h2>Add Task</h2>
+        <form id="addTaskForm">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <div class="form-group">
+                <label for="addTitle">Title</label>
+                <input type="text" id="addTitle" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="addDescription">Description</label>
+                <textarea id="addDescription" name="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="addDueDate">Due Date</label>
+                <input type="date" id="addDueDate" name="due_date" required>
+            </div>
+            <div class="form-group">
+                <label for="addStatus">Status</label>
+                <select id="addStatus" name="status">
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="addPriority">Priority</label>
+                <select id="addPriority" name="priority">
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="addAssignedTo">Assigned To</label>
+                <select id="addAssignedTo" name="assigned_to" multiple>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.full_name|default:user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="view-tasks-btn">Add Task</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: var(--background-white);
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+body.dark-mode .modal-content {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+}
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--text);
+}
+body.dark-mode .close-btn {
+    color: var(--dark-text);
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text);
+}
+body.dark-mode .form-group label {
+    color: var(--dark-text);
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea,
+body.dark-mode .form-group select {
+    background: var(--dark-surface);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+.form-group select[multiple] {
+    height: 100px;
+}
+.view-tasks-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9em;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+.view-tasks-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 71, 171, 0.3);
+}
+body.dark-mode .view-tasks-btn {
+    background: linear-gradient(135deg, var(--dark-primary), #5ba0f2);
+}
+</style>
+
+<script>
+document.getElementById('addTaskForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const assignedToSelect = this.querySelector('#addAssignedTo');
+    const formData = {
+        title: this.querySelector('#addTitle').value,
+        description: this.querySelector('#addDescription').value,
+        due_date: this.querySelector('#addDueDate').value,
+        status: this.querySelector('#addStatus').value,
+        priority: this.querySelector('#addPriority').value,
+        assigned_to: Array.from(assignedToSelect.selectedOptions).map(option => option.value)
+    };
+    fetch('/tasks/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Task created successfully!');
+            window.location.reload();
+        } else {
+            alert('Error creating task: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while creating the task.');
+    });
+});
+</script>

@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Records{% endblock %}
+
+{% block content %}
+<header class="header">
+    <h1 class="greeting">Records</h1>
+    <p class="subtitle">Manage your files and documents</p>
+    <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
+        <span class="notification-icon">🔔</span>
+        <span class="notification-badge">{{ notifications.count }}</span>
+    </div>
+</header>
+
+<div class="records-container">
+    <div class="records-header">
+        <h2 class="records-title">Your Records</h2>
+        <button class="auth-btn" onclick="openNewRecordModal()">Add New Record</button>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <input type="text" id="search-input" class="search-input" placeholder="Search records by name..." />
+        <div class="filter-group">
+            <label for="record-type-filter">Record Type:</label>
+            <select id="record-type-filter" class="filter-select">
+                <option value="all">All Types</option>
+                {% for record_type in record_types %}
+                    <option value="{{ record_type.id }}">{{ record_type.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="status-filter">Status:</label>
+            <select id="status-filter" class="filter-select">
+                <option value="all">All Statuses</option>
+                {% for status in status_choices %}
+                    <option value="{{ status.0 }}">{{ status.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Records Table -->
+    <div class="records-table-container">
+        <table class="records-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Record Type</th>
+                    <th>Date Created</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="records-table-body">
+                {% for record in records %}
+                    <tr class="record-row" data-record-id="{{ record.id }}">
+                        <td>{{ record.name }}</td>
+                        <td>{{ record.record_type.name }}</td>
+                        <td>{{ record.date_created|date:"Y-m-d" }}</td>
+                        <td>{{ record.status }}</td>
+                        <td class="actions">
+                            <a href="{% url 'records:view_record' record.id %}" class="view-btn">View</a>
+                            <button class="delete-record-btn" data-record-id="{{ record.id }}" data-delete-url="{% url 'records:delete_record' record.id %}">Delete</button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div class="empty-icon">📁</div>
+                            <p>No records available.</p>
+                            <button class="auth-btn" onclick="openNewRecordModal()">Add Your First Record</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include 'partials/new_record_modal.html' %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.records-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.records-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.records-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+body.dark-mode .records-title {
+    color: var(--dark-text);
+}
+
+.auth-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 71, 171, 0.3);
+}
+
+body.dark-mode .auth-btn {
+    background: linear-gradient(135deg, var(--dark-primary), #5ba0f2);
+}
+
+.search-filter-bar {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 0.9em;
+    color: var(--text);
+    background: var(--background-white);
+}
+
+body.dark-mode .search-input {
+    background: var(--dark-surface);
+    border-color: var(--dark-primary);
+    color: var(--dark-text);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-select {
+    padding: 8px;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    background: var(--background-white);
+    color: var(--text);
+    font-size: 0.9em;
+}
+
+body.dark-mode .filter-select {
+    background: var(--dark-surface);
+    border-color: var(--dark-primary);
+    color: var(--dark-text);
+}
+
+.records-table-container {
+    overflow-x: auto;
+}
+
+.records-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--background-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .records-table {
+    background: var(--dark-surface);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.records-table th,
+.records-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+body.dark-mode .records-table th,
+body.dark-mode .records-table td {
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.records-table th {
+    font-weight: 600;
+    color: var(--text);
+    background: var(--background-light);
+}
+
+body.dark-mode .records-table th {
+    color: var(--dark-text);
+    background: var(--dark-surface-light);
+}
+
+.records-table td {
+    color: var(--text);
+}
+
+body.dark-mode .records-table td {
+    color: var(--dark-text);
+}
+
+.records-table .actions {
+    display: flex;
+    gap: 10px;
+}
+
+.view-btn {
+    background: var(--accent);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+body.dark-mode .view-btn {
+    background: var(--dark-accent);
+}
+
+.delete-record-btn {
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.delete-record-btn:hover {
+    background: #ff3742;
+    transform: translateY(-1px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    color: var(--text-light);
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+body.dark-mode .empty-state p {
+    color: var(--dark-text-light);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/records.js' %}"></script>
+{% endblock %}
