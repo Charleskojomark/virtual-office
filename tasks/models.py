@@ -34,11 +34,25 @@ class Task(models.Model):
         delta = self.due_date - timezone.now().date()
         return 0 <= delta.days <= 2 and self.status != 'Completed'
 
+# tasks/models.py (update your existing Notification model)
 class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('chat', 'Chat Message'),
+        ('task', 'Task Update'),
+        ('event', 'Event Reminder'),
+        ('system', 'System Notification'),
+    )
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, null=True)
     is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    related_url = models.CharField(max_length=255, blank=True, null=True)
+    related_id = models.IntegerField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f"Notification for {self.user.username}: {self.message[:50]}"
+        return f"{self.get_notification_type_display()} for {self.user.username}"

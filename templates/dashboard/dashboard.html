@@ -130,9 +130,10 @@
         </table>
     </div>
 </div>
-{% include 'partials/notifications_modal.html' %}
+
 {% endblock %}
 {% block extra_js %}
+{{ block.super }}
 <style>
     .activity-feed-card {
         display: flex;
@@ -223,6 +224,92 @@
     .toast.show {
         opacity: 1;
     }
+    /* Notifications Modal Styles */
+#notificationsModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.notifications-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-light);
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.notifications-content {
+    padding: 20px;
+    max-height: calc(80vh - 60px);
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.notification-item {
+    display: flex;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.notification-icon {
+    font-size: 1.5em;
+    padding-top: 2px;
+}
+
+.notification-text p {
+    margin: 0 0 5px 0;
+    font-size: 0.95em;
+}
+
+.notification-text small {
+    color: var(--text-light);
+    font-size: 0.85em;
+}
+
+.empty-notifications {
+    text-align: center;
+    color: var(--text-light);
+    padding: 20px 0;
+}
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -284,44 +371,52 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Periodically fetch task updates
-    function fetchTaskUpdates() {
-        fetch('/dashboard/task_updates/', {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const taskCountEl = document.getElementById('taskCount');
-                const taskProgressFillEl = document.getElementById('taskProgressFill');
-                const taskTextEl = document.getElementById('taskText');
-                const newCount = data.tasks.count;
-                const newRemaining = data.tasks.remaining;
-                const newPercentage = data.tasks.completion_percentage;
+    // function fetchTaskUpdates() {
+    //     fetch('/dashboard/task_updates/', {
+    //         method: 'GET',
+    //         headers: {
+    //             'X-CSRFToken': getCookie('csrftoken')
+    //         }
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.status === 'success') {
+    //             const taskCountEl = document.getElementById('taskCount');
+    //             const taskProgressFillEl = document.getElementById('taskProgressFill');
+    //             const taskTextEl = document.getElementById('taskText');
+    //             const newCount = data.tasks.count;
+    //             const newRemaining = data.tasks.remaining;
+    //             const newPercentage = data.tasks.completion_percentage;
 
-                // Only update DOM if data has changed
-                if (taskCountEl.textContent != newCount || taskTextEl.textContent.includes(newRemaining) === false) {
-                    taskCountEl.textContent = newCount;
-                    taskProgressFillEl.style.width = `${newPercentage}%`;
-                    taskTextEl.textContent = `You have ${newRemaining} tasks remaining out of ${newCount} total tasks`;
-                    showToast('Task data updated', 'success');
-                }
-            } else {
-                showToast('Error fetching task updates: ' + (data.message || 'Unknown error'), 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching task updates:', error);
-            showToast('Error fetching task updates', 'error');
-        });
-    }
+    //             // Only update DOM if data has changed
+    //             if (taskCountEl.textContent != newCount || taskTextEl.textContent.includes(newRemaining) === false) {
+    //                 taskCountEl.textContent = newCount;
+    //                 taskProgressFillEl.style.width = `${newPercentage}%`;
+    //                 taskTextEl.textContent = `You have ${newRemaining} tasks remaining out of ${newCount} total tasks`;
+    //                 showToast('Task data updated', 'success');
+    //             }
+    //         } else {
+    //             showToast('Error fetching task updates: ' + (data.message || 'Unknown error'), 'error');
+    //         }
+    //     })
+    //     .catch(error => {
+    //         console.error('Error fetching task updates:', error);
+    //         showToast('Error fetching task updates', 'error');
+    //     });
+    // }
 
-    // Initial fetch and set interval for updates
-    fetchTaskUpdates();
-    setInterval(fetchTaskUpdates, 30000);
+    // // Initial fetch and set interval for updates
+    // fetchTaskUpdates();
+    // setInterval(fetchTaskUpdates, 30000);
+    
 
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        
+        if (e.target.id === 'notificationsModal') {
+            document.getElementById('notificationsModal').style.display = 'none';
+        }
+    });
     // Modal close functionality
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {

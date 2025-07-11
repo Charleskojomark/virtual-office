@@ -2,11 +2,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .models import Record, RecordType
+from .models import Record
 from tasks.models import Notification
 from django.utils import timezone
 from django.db.models import Q
 
+# Add this to your existing view
 @login_required
 def records_view(request):
     # Get filter parameters from GET request
@@ -23,7 +24,7 @@ def records_view(request):
 
     # Apply record type filter
     if record_type_filter != 'all':
-        records = records.filter(record_type__id=record_type_filter)
+        records = records.filter(record_type=record_type_filter)
 
     # Apply status filter
     if status_filter != 'all':
@@ -32,7 +33,7 @@ def records_view(request):
     context = {
         'records': records,
         'notifications': Notification.objects.filter(user=request.user, is_read=False),
-        'record_types': RecordType.objects.all(),
+        'record_type_choices': Record.RECORD_TYPE_CHOICES,
         'status_choices': Record.STATUS_CHOICES,
         'current_filters': {
             'search': search_query,
@@ -43,11 +44,37 @@ def records_view(request):
     return render(request, 'records/records.html', context)
 
 @login_required
-def view_record(request, pk):
-    record = get_object_or_404(Record, pk=pk, user=request.user)
-    # Placeholder for view logic; adjust based on your needs
-    return render(request, 'records/view_record.html', {'record': record})
+def add_record(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        record_type = request.POST.get('record_type')
+        status = request.POST.get('status', 'Draft')
+        file = request.FILES.get('file')
 
+        if name:
+            record_data = {
+                'name': name,
+                'record_type': record_type if record_type in dict(Record.RECORD_TYPE_CHOICES).keys() else 'Other',
+                'status': status,
+                'user': request.user,
+                'date_created': timezone.now(),
+            }
+            if file:
+                record_data['file'] = file
+            record = Record.objects.create(**record_data)
+            return redirect('records:records')
+        return render(request, 'records/new_record_modal.html', {
+            'record_type_choices': Record.RECORD_TYPE_CHOICES,
+            'status_choices': Record.STATUS_CHOICES,
+            'error': 'Please provide a name.'
+        })
+
+    return render(request, 'records/new_record_modal.html', {
+        'record_type_choices': Record.RECORD_TYPE_CHOICES,
+        'status_choices': Record.STATUS_CHOICES,
+    })
+
+# Update the delete_record view
 @login_required
 @require_POST
 def delete_record(request, pk):
@@ -57,31 +84,3 @@ def delete_record(request, pk):
         return JsonResponse({'status': 'success', 'message': 'Record deleted successfully'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-@login_required
-def add_record(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        record_type_id = request.POST.get('record_type')
-        status = request.POST.get('status', 'Draft')
-
-        if name and record_type_id:
-            record_type = get_object_or_404(RecordType, pk=record_type_id)
-            Record.objects.create(
-                name=name,
-                record_type=record_type,
-                status=status,
-                user=request.user,
-                date_created=timezone.now()
-            )
-            return redirect('records:records')
-        return render(request, 'partials/new_record_modal.html', {
-            'record_types': RecordType.objects.all(),
-            'status_choices': Record.STATUS_CHOICES,
-            'error': 'Please provide a name and record type.'
-        })
-
-    return render(request, 'partials/new_record_modal.html', {
-        'record_types': RecordType.objects.all(),
-        'status_choices': Record.STATUS_CHOICES,
-    })

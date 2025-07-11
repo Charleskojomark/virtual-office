@@ -4,119 +4,156 @@
 {% block title %}Reports{% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/reports.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Safe JSON data embedding -->
 {{ tasks_bar_data|json_script:"tasks-bar-data" }}
 {{ task_completion_data|json_script:"task-completion-data" }}
 {{ user_activity_data|json_script:"user-activity-data" }}
 
 <script>
-    // Initialize Chart.js instances
     let tasksBarChart, taskCompletionChart, userActivityChart;
 
-    // Function to initialize or update charts
-    function initializeCharts() {
-        const tasksBarCtx = document.getElementById('tasksBarChart').getContext('2d');
-        const taskCompletionCtx = document.getElementById('taskCompletionChart').getContext('2d');
-        const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
-
-        // Destroy existing charts if they exist
-        if (tasksBarChart) tasksBarChart.destroy();
-        if (taskCompletionChart) taskCompletionChart.destroy();
-        if (userActivityChart) userActivityChart.destroy();
-
-        // Chart data from Django context (safe JSON parsing)
-        const tasksBarData = JSON.parse(document.getElementById('tasks-bar-data').textContent);
-        const taskCompletionData = JSON.parse(document.getElementById('task-completion-data').textContent);
-        const userActivityData = JSON.parse(document.getElementById('user-activity-data').textContent);
-
-        // Tasks Completed vs Missed (Bar Chart)
-        tasksBarChart = new Chart(tasksBarCtx, {
-            type: 'bar',
-            data: {
-                labels: tasksBarData.labels,
-                datasets: [{
-                    label: 'Tasks',
-                    data: tasksBarData.data,
-                    backgroundColor: ['#4CAF50', '#F44336'],
-                    borderColor: ['#388E3C', '#D32F2F'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'Tasks Completed vs Overdue', color: '#333', font: { size: 16 } }
-                },
-                scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Number of Tasks' }, ticks: { color: '#333' }, grid: { color: '#e0e0e0' } },
-                    x: { ticks: { color: '#333' }, grid: { display: false } }
-                }
+    function getJSONData(scriptId) {
+        try {
+            const element = document.getElementById(scriptId);
+            if (!element) {
+                console.error(`Element with id '${scriptId}' not found`);
+                return null;
             }
-        });
-
-        // Task Completion (Line Chart)
-        taskCompletionChart = new Chart(taskCompletionCtx, {
-            type: 'line',
-            data: {
-                labels: taskCompletionData.labels,
-                datasets: [{
-                    label: 'Completed Tasks',
-                    data: taskCompletionData.data,
-                    backgroundColor: 'rgba(33, 150, 243, 0.2)',
-                    borderColor: '#2196F3',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'Monthly Task Completion', color: '#333', font: { size: 16 } }
-                },
-                scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Number of Tasks' }, ticks: { color: '#333' }, grid: { color: '#e0e0e0' } },
-                    x: { ticks: { color: '#333' }, grid: { display: false } }
-                }
-            }
-        });
-
-        // User Activity (Bar Chart)
-        userActivityChart = new Chart(userActivityCtx, {
-            type: 'bar',
-            data: {
-                labels: userActivityData.labels, // Full names or usernames
-                datasets: [{
-                    label: 'Assigned Tasks',
-                    data: userActivityData.data,
-                    backgroundColor: '#FFC107',
-                    borderColor: '#FFA000',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'User Activity', color: '#333', font: { size: 16 } }
-                },
-                scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Number of Tasks' }, ticks: { color: '#333' }, grid: { color: '#e0e0e0' } },
-                    x: { ticks: { color: '#333' }, grid: { display: false } }
-                }
-            }
-        });
+            return JSON.parse(element.textContent);
+        } catch (error) {
+            console.error(`Error parsing JSON from ${scriptId}:`, error);
+            return null;
+        }
     }
 
-    // Function to handle filter changes (reload page with query params)
+    function isValidChartData(data, chartName) {
+        if (!data) return false;
+        if (!data.labels || !Array.isArray(data.labels)) return false;
+        if (!data.data || !Array.isArray(data.data)) return false;
+        if (data.labels.length === 0 || data.data.length === 0) return false;
+        if (data.labels.length !== data.data.length) return false;
+        return true;
+    }
+
+    function initializeCharts() {
+        // Initialize all charts
+        initTasksBarChart();
+        initTaskCompletionChart();
+        initUserActivityChart();
+    }
+
+    function initTasksBarChart() {
+        const ctx = document.getElementById('tasksBarChart')?.getContext('2d');
+        if (!ctx) return;
+        
+        if (tasksBarChart) tasksBarChart.destroy();
+        
+        const data = getJSONData('tasks-bar-data');
+        if (isValidChartData(data, 'Tasks Bar Chart')) {
+            tasksBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Tasks',
+                        data: data.data,
+                        backgroundColor: ['#4CAF50', '#F44336'],
+                        borderColor: ['#388E3C', '#D32F2F'],
+                        borderWidth: 1
+                    }]
+                },
+                options: getChartOptions('Tasks Completed vs Overdue')
+            });
+        } else {
+            ctx.canvas.parentNode.innerHTML = '<p class="no-data">No task data available for the selected filters.</p>';
+        }
+    }
+
+    function initTaskCompletionChart() {
+        const ctx = document.getElementById('taskCompletionChart')?.getContext('2d');
+        if (!ctx) return;
+        
+        if (taskCompletionChart) taskCompletionChart.destroy();
+        
+        const data = getJSONData('task-completion-data');
+        if (isValidChartData(data, 'Task Completion Chart')) {
+            taskCompletionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Completed Tasks',
+                        data: data.data,
+                        backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                        borderColor: '#2196F3',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: getChartOptions('Monthly Task Completion')
+            });
+        } else {
+            ctx.canvas.parentNode.innerHTML = '<p class="no-data">No completion data available for the selected filters.</p>';
+        }
+    }
+
+    function initUserActivityChart() {
+        const ctx = document.getElementById('userActivityChart')?.getContext('2d');
+        if (!ctx) return;
+        
+        if (userActivityChart) userActivityChart.destroy();
+        
+        const data = getJSONData('user-activity-data');
+        if (isValidChartData(data, 'User Activity Chart')) {
+            userActivityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Assigned Tasks',
+                        data: data.data,
+                        backgroundColor: '#FFC107',
+                        borderColor: '#FFA000',
+                        borderWidth: 1
+                    }]
+                },
+                options: getChartOptions('User Activity')
+            });
+        } else {
+            ctx.canvas.parentNode.innerHTML = '<p class="no-data">No user activity data available for the selected filters.</p>';
+        }
+    }
+
+    function getChartOptions(titleText) {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { 
+                    display: true, 
+                    text: titleText, 
+                    color: '#333', 
+                    font: { size: 16, family: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" } 
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    title: { display: true, text: 'Number of Tasks' }, 
+                    ticks: { color: '#333' }, 
+                    grid: { color: '#e0e0e0' } 
+                },
+                x: { 
+                    ticks: { color: '#333' }, 
+                    grid: { display: false } 
+                }
+            }
+        };
+    }
+
     function applyFilters() {
         const dateFilter = document.getElementById('date-filter').value;
         const userFilter = document.getElementById('user-filter').value;
@@ -124,11 +161,15 @@
         window.location.href = url;
     }
 
-    // Initialize on page load
+    function clearFilters() {
+        window.location.href = '/reports/';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         initializeCharts();
         document.getElementById('date-filter').addEventListener('change', applyFilters);
         document.getElementById('user-filter').addEventListener('change', applyFilters);
+        document.querySelector('.clear-filters')?.addEventListener('click', clearFilters);
     });
 </script>
 {% endblock %}
@@ -167,6 +208,26 @@
         </div>
     </div>
 
+    <!-- Active Filters -->
+    {% if current_filters.date != 'all' or current_filters.user != 'all' %}
+    <div class="active-filters">
+        {% if current_filters.date != 'all' %}
+            <span class="filter-tag">Date: {{ current_filters.date|title }}</span>
+        {% endif %}
+        {% if current_filters.user != 'all' %}
+            <span class="filter-tag">
+                User: 
+                {% for user in users %}
+                    {% if user.id == current_filters.user|add:"0" %}
+                        {{ user.full_name }}
+                    {% endif %}
+                {% endfor %}
+            </span>
+        {% endif %}
+        <a href="#" class="clear-filters">Clear All Filters</a>
+    </div>
+    {% endif %}
+
     <!-- Summary Cards -->
     <div class="summary-grid">
         <div class="summary-card">
@@ -185,7 +246,14 @@
 
     <!-- New Users Table -->
     <div class="new-users-section">
-        <h2 class="section-title">New Users This Month</h2>
+        <h2 class="section-title">
+            New Users 
+            {% if current_filters.date != 'all' %}
+                ({{ current_filters.date|title }})
+            {% else %}
+                (All Time)
+            {% endif %}
+        </h2>
         <table id="new-users-table" class="new-users-table">
             <thead>
                 <tr>
@@ -204,7 +272,7 @@
                         </tr>
                     {% endfor %}
                 {% else %}
-                    <tr><td colspan="3">No new users this month</td></tr>
+                    <tr><td colspan="3">No new users found for the selected filters</td></tr>
                 {% endif %}
             </tbody>
         </table>
@@ -212,9 +280,14 @@
 
     <div class="section-header">
         <h2 class="section-title">Performance Dashboard</h2>
+        <<!-- In your reports.html template, update the section-actions div -->
         <div class="section-actions">
-            <button class="btn btn-primary" data-modal="export-report" data-format="pdf">Export PDF</button>
-            <button class="btn btn-primary" data-modal="export-report" data-format="excel">Export Excel</button>
+            <a href="?{{ request.GET.urlencode }}&export=pdf" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </a>
+            <a href="?{{ request.GET.urlencode }}&export=excel" class="btn btn-primary">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
         </div>
     </div>
 
@@ -249,6 +322,31 @@
 
 {% block extra_css %}
 <style>
+:root {
+    --primary: #0047AB;
+    --primary-light: #3366CC;
+    --primary-dark: #003380;
+    --background-white: #ffffff;
+    --text: #333333;
+    --surface: #f5f7fa;
+    --border: #e0e0e0;
+    
+    /* Dark mode variables */
+    --dark-primary: #64B5F6;
+    --dark-background: #121212;
+    --dark-surface: #1e1e1e;
+    --dark-text: #e0e0e0;
+    --dark-border: #444;
+}
+
+body.dark-mode {
+    --primary: var(--dark-primary);
+    --background-white: var(--dark-surface);
+    --text: var(--dark-text);
+    --surface: var(--dark-surface);
+    --border: var(--dark-border);
+}
+
 .reports-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -258,7 +356,7 @@
 .filters-container {
     display: flex;
     gap: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
@@ -266,15 +364,22 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    min-width: 200px;
 }
 
 .filter-select {
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
     border: 2px solid var(--primary);
     background: var(--background-white);
     color: var(--text);
-    font-size: 0.9em;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
 }
 
 body.dark-mode .filter-select {
@@ -283,36 +388,82 @@ body.dark-mode .filter-select {
     color: var(--dark-text);
 }
 
+.active-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-tag {
+    background-color: var(--primary-light);
+    color: white;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.95em;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+body.dark-mode .filter-tag {
+    background-color: var(--dark-primary);
+}
+
+.clear-filters {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 5px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+body.dark-mode .clear-filters {
+    color: var(--dark-primary-light);
+}
+
+.clear-filters:hover {
+    text-decoration: underline;
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
 }
 
 .summary-card {
     background: var(--background-white);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 15px;
+    padding: 25px;
     text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border);
 }
 
 .summary-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
 }
 
 body.dark-mode .summary-card {
     background: var(--dark-surface);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    border-color: var(--dark-border);
 }
 
 .summary-title {
-    font-size: 1.1em;
+    font-size: 1.15em;
     font-weight: 600;
     color: var(--text);
-    margin: 0 0 10px 0;
+    margin: 0 0 15px 0;
 }
 
 body.dark-mode .summary-title {
@@ -320,10 +471,11 @@ body.dark-mode .summary-title {
 }
 
 .summary-value {
-    font-size: 1.8em;
+    font-size: 2.2em;
     font-weight: 700;
     color: var(--primary);
     margin: 0;
+    line-height: 1.2;
 }
 
 body.dark-mode .summary-value {
@@ -331,40 +483,67 @@ body.dark-mode .summary-value {
 }
 
 .new-users-section {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    background: var(--background-white);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+}
+
+body.dark-mode .new-users-section {
+    background: var(--dark-surface);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    border-color: var(--dark-border);
+}
+
+.section-title {
+    font-size: 1.6em;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 20px 0;
+}
+
+body.dark-mode .section-title {
+    color: var(--dark-text);
 }
 
 .new-users-table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--background-white);
     border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-body.dark-mode .new-users-table {
-    background: var(--dark-surface);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    overflow: hidden;
 }
 
 .new-users-table th, .new-users-table td {
-    padding: 10px;
+    padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border);
 }
 
-body.dark-mode .new-users-table th, body.dark-mode .new-users-table td {
-    border-bottom: 1px solid #444;
+body.dark-mode .new-users-table th, 
+body.dark-mode .new-users-table td {
+    border-bottom: 1px solid var(--dark-border);
     color: var(--dark-text);
 }
 
 .new-users-table th {
+    background-color: rgba(33, 150, 243, 0.1);
     font-weight: 600;
     color: var(--text);
 }
 
 body.dark-mode .new-users-table th {
+    background-color: rgba(100, 181, 246, 0.15);
     color: var(--dark-text);
+}
+
+.new-users-table tbody tr:hover {
+    background-color: rgba(33, 150, 243, 0.05);
+}
+
+body.dark-mode .new-users-table tbody tr:hover {
+    background-color: rgba(100, 181, 246, 0.1);
 }
 
 .section-header {
@@ -373,43 +552,37 @@ body.dark-mode .new-users-table th {
     align-items: center;
     margin-bottom: 30px;
     flex-wrap: wrap;
-    gap: 15px;
-}
-
-.section-title {
-    font-size: 1.5em;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0;
-}
-
-body.dark-mode .section-title {
-    color: var(--dark-text);
+    gap: 20px;
 }
 
 .section-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 .btn {
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
     border: none;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 0.9em;
+    font-weight: 600;
+    font-size: 1em;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn-primary {
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
     color: white;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 71, 171, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(33, 150, 243, 0.35);
 }
 
 body.dark-mode .btn-primary {
@@ -418,38 +591,42 @@ body.dark-mode .btn-primary {
 
 .reports-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
 }
 
 .report-card {
     background: var(--background-white);
-    border-radius: 15px;
+    border-radius: 18px;
     padding: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border);
 }
 
 .report-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
 }
 
 body.dark-mode .report-card {
     background: var(--dark-surface);
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border-color: var(--dark-border);
 }
 
 .report-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 15px;
 }
 
 .report-title {
-    font-size: 1.2em;
+    font-size: 1.3em;
     font-weight: 600;
     color: var(--text);
     margin: 0;
@@ -461,8 +638,101 @@ body.dark-mode .report-title {
 
 .chart-container {
     position: relative;
-    height: 300px;
+    height: 320px;
     width: 100%;
+}
+
+.no-data {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 1100px) {
+    .reports-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .section-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .report-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 14px;
+    }
+    
+    .section-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+@media print {
+    body {
+        padding: 20px;
+        background: white;
+        color: black;
+    }
+    
+    .header, .filters-container, .clear-filters, .section-actions {
+        display: none;
+    }
+    
+    .report-card {
+        page-break-inside: avoid;
+        margin-bottom: 30px;
+    }
+    
+    .summary-grid {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+    
+    .summary-card {
+        flex: 1;
+        margin: 0 10px;
+    }
 }
 </style>
 {% endblock %}

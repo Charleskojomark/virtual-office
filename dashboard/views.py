@@ -68,7 +68,7 @@ def dashboard(request):
     ]
 
     # Fetch notifications
-    notifications = Notification.objects.filter(user=request.user, is_read=False)
+    notifications = request.user.notifications.filter(is_read=False) if hasattr(request.user, 'notifications') else []
 
     # Get current date information for JavaScript
     now = timezone.now()
@@ -95,7 +95,17 @@ def dashboard(request):
         },
         'meetings': meetings,
         'activities': activities,
-        'notifications': {'count': notifications.count()},
+        'notifications': {
+            'count': notifications.count(),
+            'chat': {
+                'count': notifications.filter(notification_type='chat').count(),
+                'list': notifications.filter(notification_type='chat')[:5]
+            },
+            'general': {
+                'count': notifications.exclude(notification_type='chat').count(),
+                'list': notifications.exclude(notification_type='chat')[:5]
+            }
+        },
         'now': now,
         'calendar_events_json': calendar_events_json,
         'calendar_month': today.month,

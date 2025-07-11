@@ -6,7 +6,7 @@
     <p class="subtitle">Stay connected with your team</p>
     <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
         <span class="notification-icon">🔔</span>
-        <span class="notification-badge">{{ notifications.count }}</span>
+        <span class="notification-badge">{{ chat_notifications.count|add:general_notifications.count }}</span>
     </div>
 </header>
 
@@ -62,30 +62,35 @@
 
     <div class="chat-main">
         {% if active_chat %}
-        <div class="chat-header">
-            <div class="chat-user-info">
-                <div class="chat-avatar">
-                    <img src="{{ active_chat.participant_avatar|default:'/static/default-avatar.png' }}" 
-                         alt="{{ active_chat.participant_name }}" 
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <div class="avatar-fallback">{{ active_chat.participant_initials }}</div>
-                </div>
-                <div class="chat-details">
-                    <h2 class="chat-name">{{ active_chat.participant_name }}</h2>
-                    <span class="chat-status">{{ active_chat.status|default:"Online" }}</span>
-                </div>
-            </div>
+        <div class="chat-header" data-participant-id="{{ active_chat.participant_id }}">
+    <div class="chat-user-info">
+        <div class="chat-avatar">
+            <img src="{{ active_chat.participant_avatar|default:'/static/default-avatar.png' }}" 
+                 alt="{{ active_chat.participant_name }}" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="avatar-fallback">{{ active_chat.participant_initials }}</div>
         </div>
+        <div class="chat-details">
+            <h2 class="chat-name">{{ active_chat.participant_name }}</h2>
+            <span class="chat-status">
+                {% if active_chat.status == 'Online' %}
+                    <span class="online-dot">•</span> Online
+                {% else %}
+                    Offline
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</div>
 
         <div class="chat-messages" id="chatMessages">
             {% for message in messages %}
-            <div class="message-group {% if message.sender == user %}sent{% else %}received{% endif %}">
-                {% if message.sender != user %}
+            <div class="message-group {% if message.sender.id == user.id %}sent{% else %}received{% endif %}">
+                {% if message.sender.id != user.id %}
                 <div class="message-avatar">
                     <img src="{{ message.sender.avatar|default:'/static/default-avatar.png' }}" 
                          alt="{{ message.sender.name }}" 
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <div class="avatar-fpunishments: 0
                     <div class="avatar-fallback">{{ message.sender.initials }}</div>
                 </div>
                 {% endif %}
@@ -95,14 +100,14 @@
                         {% if message.attachment %}
                         <div class="message-attachment">
                             <span class="attachment-icon">📎</span>
-                            <span class="attachment-name">{{ message.attachment.name }}</span>
+                            <a href="{{ message.attachment.url }}" class="attachment-name">{{ message.attachment.name }}</a>
                         </div>
                         {% endif %}
                     </div>
                     <div class="message-meta">
                         <span class="message-time">{{ message.timestamp|date:"h:i A" }}</span>
-                        {% if message.sender == user %}
-                        <span class="message-status">{{ message.status|default:"✓" }}</span>
+                        {% if message.sender.id == user.id %}
+                        <span class="message-status">{{ message.status }}</span>
                         {% endif %}
                     </div>
                 </div>
@@ -115,19 +120,30 @@
             {% endfor %}
         </div>
 
+        {% if page_obj %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+            <a href="?chat={{ active_chat.id }}&page={{ page_obj.previous_page_number }}" class="btn btn-outline">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?chat={{ active_chat.id }}&page={{ page_obj.next_page_number }}" class="btn btn-outline">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <div class="chat-input-container">
-            <div class="chat-input-wrapper">
-                <button class="input-action-btn" title="Attach file">📎</button>
-                <input type="text" 
-                       id="messageInput" 
-                       placeholder="Type your message..." 
-                       class="message-input"
-                       aria-label="Type a message">
-                <button class="input-action-btn" title="Add emoji">😊</button>
-                <button class="send-btn" id="sendMessage" aria-label="Send message">
-                    <span class="send-icon">➤</span>
-                </button>
-            </div>
+            <form id="messageForm" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="chat-input-wrapper">
+        <input type="file" id="attachmentInput" style="display: none;" accept="*/*">
+        <button type="button" class="input-action-btn" title="Attach file" onclick="document.getElementById('attachmentInput').click();">📎</button>
+        <input type="text" id="messageInput" name="message" placeholder="Type your message..." class="message-input" aria-label="Type a message">
+        <button type="button" class="input-action-btn" title="Add emoji">😊</button>
+        <button type="submit" class="send-btn" id="sendMessage" aria-label="Send message">
+            <span class="send-icon">➤</span>
+        </button>
+    </div>
+</form>
         </div>
         {% else %}
         <div class="chat-placeholder">
@@ -145,12 +161,74 @@
     </div>
 </div>
 
-{% include 'partials/notifications_modal.html' %}
-{% endblock %}
+<!-- New Message Modal -->
+<div id="newMessageModal" style="display: none;">
+    <div class="modal-content">
+        <h2>New Message</h2>
+        <form id="newMessageForm">
+            <label for="recipientSelect">Recipient:</label>
+            <select id="recipientSelect" name="recipient_id">
+                {% for user in all_users %}
+                <option value="{{ user.id }}">{{ user.username }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Start Chat</button>
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('newMessageModal').style.display='none';">Cancel</button>
+        </form>
+    </div>
+</div>
 
-{% block extra_css %}
+<!-- Notifications Modal -->
+<div id="notificationsModal" style="display: none;">
+    <div class="modal-content">
+        <div class="notifications-tabs">
+            <button class="tab-btn active" data-tab="chat-notifications">Chat ({{ chat_notifications.count }})</button>
+            <button class="tab-btn" data-tab="general-notifications">General ({{ general_notifications.count }})</button>
+        </div>
+        
+        <div class="notifications-content">
+            <div id="chat-notifications" class="tab-content active">
+                {% if chat_notifications.list %}
+                    {% for notification in chat_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new chat notifications</p>
+                {% endif %}
+            </div>
+            
+            <div id="general-notifications" class="tab-content">
+                {% if general_notifications.list %}
+                    {% for notification in general_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new general notifications</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
-/* Keep the existing CSS unchanged as it supports the required layout and components */
+    .online-dot {
+    color: #4CAF50;
+    font-size: 1.5em;
+    vertical-align: middle;
+    margin-right: 5px;
+}
 .messaging-container {
     display: flex;
     gap: 0;
@@ -164,7 +242,6 @@ body.dark-mode .messaging-container {
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* Sidebar Styles */
 .messaging-sidebar {
     width: 350px;
     background: var(--background-white);
@@ -423,7 +500,6 @@ body.dark-mode .preview-text {
     margin-left: 8px;
 }
 
-/* Main Chat Area */
 .chat-main {
     flex: 1;
     background: var(--background-white);
@@ -501,11 +577,11 @@ body.dark-mode .chat-name {
 .message-group {
     display: flex;
     gap: 12px;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 
 .message-group.sent {
-    justify-content: flex-end;
+    flex-direction: row-reverse;
 }
 
 .message-avatar {
@@ -513,6 +589,7 @@ body.dark-mode .chat-name {
     height: 35px;
     border-radius: 50%;
     overflow: hidden;
+    position: relative;
     flex-shrink: 0;
 }
 
@@ -529,10 +606,14 @@ body.dark-mode .chat-name {
     gap: 5px;
 }
 
+.message-group.sent .message-content {
+    align-items: flex-end;
+}
+
 .message-bubble {
-    background: var(--border-light);
     padding: 12px 16px;
     border-radius: 18px;
+    background: var(--border-light);
     position: relative;
 }
 
@@ -543,21 +624,18 @@ body.dark-mode .chat-name {
 
 body.dark-mode .message-bubble {
     background: var(--dark-border);
+    color: var(--dark-text);
+}
+
+body.dark-mode .message-group.sent .message-bubble {
+    background: linear-gradient(135deg, var(--dark-primary), #5ba0f2);
 }
 
 .message-text {
     margin: 0;
     font-size: 0.95em;
     line-height: 1.4;
-    color: var(--text);
-}
-
-.message-group.sent .message-text {
-    color: white;
-}
-
-body.dark-mode .message-text {
-    color: var(--dark-text);
+    word-wrap: break-word;
 }
 
 .message-attachment {
@@ -565,9 +643,9 @@ body.dark-mode .message-text {
     align-items: center;
     gap: 8px;
     margin-top: 8px;
-    padding: 8px;
+    padding: 8px 12px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 12px;
 }
 
 .attachment-icon {
@@ -575,33 +653,59 @@ body.dark-mode .message-text {
 }
 
 .attachment-name {
+    color: inherit;
+    text-decoration: none;
     font-size: 0.9em;
-    font-weight: 500;
+}
+
+.attachment-name:hover {
+    text-decoration: underline;
 }
 
 .message-meta {
     display: flex;
     align-items: center;
     gap: 8px;
-    justify-content: flex-end;
-}
-
-.message-group.received .message-meta {
-    justify-content: flex-start;
-}
-
-.message-time {
     font-size: 0.8em;
     color: var(--text-light);
 }
 
-body.dark-mode .message-time {
+.message-group.sent .message-meta {
+    flex-direction: row-reverse;
+}
+
+body.dark-mode .message-meta {
     color: var(--dark-text-light);
 }
 
 .message-status {
-    font-size: 0.9em;
     color: var(--accent);
+    font-weight: 500;
+}
+
+.empty-messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 15px;
+}
+
+.empty-icon {
+    font-size: 3em;
+    opacity: 0.5;
+}
+
+.empty-text {
+    font-size: 1.1em;
+    color: var(--text-light);
+    margin: 0;
+}
+
+body.dark-mode .empty-text {
+    color: var(--dark-text-light);
 }
 
 .chat-input-container {
@@ -620,41 +724,50 @@ body.dark-mode .chat-input-container {
     background: var(--border-light);
     border-radius: 25px;
     padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.chat-input-wrapper:focus-within {
+    background: var(--background-white);
+    box-shadow: 0 0 0 2px var(--primary);
 }
 
 body.dark-mode .chat-input-wrapper {
     background: var(--dark-border);
 }
 
+body.dark-mode .chat-input-wrapper:focus-within {
+    background: var(--dark-surface);
+    box-shadow: 0 0 0 2px var(--dark-primary);
+}
+
 .input-action-btn {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+    background: none;
     border: none;
-    background: transparent;
-    color: var(--text-light);
+    font-size: 1.2em;
     cursor: pointer;
-    font-size: 1.1em;
+    padding: 8px;
+    border-radius: 50%;
     transition: all 0.3s ease;
 }
 
 .input-action-btn:hover {
-    background: var(--primary);
-    color: white;
+    background: var(--border);
 }
 
-body.dark-mode .input-action-btn {
-    color: var(--dark-text-light);
+body.dark-mode .input-action-btn:hover {
+    background: var(--dark-surface);
 }
 
 .message-input {
     flex: 1;
     border: none;
-    background: transparent;
-    padding: 8px 12px;
+    background: none;
+    padding: 12px 8px;
     font-size: 0.95em;
     color: var(--text);
     outline: none;
+    resize: none;
 }
 
 .message-input::placeholder {
@@ -670,14 +783,12 @@ body.dark-mode .message-input::placeholder {
 }
 
 .send-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
     background: linear-gradient(135deg, var(--primary), var(--primary-light));
     color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 1.2em;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
@@ -685,8 +796,7 @@ body.dark-mode .message-input::placeholder {
 }
 
 .send-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 71, 171, 0.3);
+    transform: scale(1.1);
 }
 
 body.dark-mode .send-btn {
@@ -694,11 +804,10 @@ body.dark-mode .send-btn {
 }
 
 .send-icon {
-    font-size: 1em;
-    font-weight: bold;
+    font-size: 1.1em;
+    transform: rotate(-45deg);
 }
 
-/* Placeholder States */
 .chat-placeholder {
     flex: 1;
     display: flex;
@@ -722,7 +831,7 @@ body.dark-mode .send-btn {
     font-size: 1.5em;
     font-weight: 600;
     color: var(--text);
-    margin: 0 0 10px 0;
+    margin: 0 0 15px 0;
 }
 
 body.dark-mode .placeholder-title {
@@ -730,9 +839,9 @@ body.dark-mode .placeholder-title {
 }
 
 .placeholder-text {
-    color: var(--text-light);
     font-size: 1em;
-    margin-bottom: 25px;
+    color: var(--text-light);
+    margin: 0 0 25px 0;
     line-height: 1.5;
 }
 
@@ -740,29 +849,145 @@ body.dark-mode .placeholder-text {
     color: var(--dark-text-light);
 }
 
-.empty-conversations,
-.empty-messages {
+.empty-conversations {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    gap: 15px;
     padding: 40px 20px;
 }
 
-.empty-icon {
-    font-size: 3em;
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+}
+
+.pagination .btn {
+    padding: 8px 16px;
+}
+
+.modal-content {
+    background: var(--background-white);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 400px;
+    margin: 50px auto;
+}
+
+body.dark-mode .modal-content {
+    background: var(--dark-surface);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--text);
+}
+
+body.dark-mode .modal-content h2 {
+    color: var(--dark-text);
+}
+
+.modal-content select {
+    width: 100%;
+    padding: 10px;
     margin-bottom: 15px;
-    opacity: 0.5;
+    border-radius: 8px;
+    border: 1px solid var(--border);
 }
 
-.empty-text {
+/* Notifications Modal Styles */
+#notificationsModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.notifications-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
     color: var(--text-light);
-    font-size: 1em;
-    margin-bottom: 20px;
+    border-bottom: 3px solid transparent;
 }
 
-body.dark-mode .empty-text {
-    color: var(--dark-text-light);
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
 }
 
-/* Responsive Design */
+.notifications-content {
+    padding: 20px;
+    max-height: calc(80vh - 60px);
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.notification-item {
+    display: flex;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.notification-icon {
+    font-size: 1.5em;
+    padding-top: 2px;
+}
+
+.notification-text p {
+    margin: 0 0 5px 0;
+    font-size: 0.95em;
+}
+
+.notification-text small {
+    color: var(--text-light);
+    font-size: 0.85em;
+}
+
+.empty-notifications {
+    text-align: center;
+    color: var(--text-light);
+    padding: 20px 0;
+}
+
 @media (max-width: 768px) {
     .messaging-container {
         flex-direction: column;
@@ -798,20 +1023,212 @@ body.dark-mode .empty-text {
     .chat-input-container {
         padding: 15px 20px;
     }
+    
+    #notificationsModal .modal-content {
+        width: 90%;
+        max-width: none;
+    }
 }
 </style>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    let activeConversationId = '{{ active_chat.id|default:"" }}';
+let chatSocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 3000; // 3 seconds
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize WebSocket
+    function initializeWebSocket() {
+        if (activeConversationId && !chatSocket) {
+            const wsScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const wsUrl = `${wsScheme}${window.location.host}/ws/messaging/${activeConversationId}/`;
+            
+            console.log('Connecting to WebSocket:', wsUrl);
+            chatSocket = new WebSocket(wsUrl);
+            
+            chatSocket.onopen = function(e) {
+                console.log('WebSocket connection established');
+                reconnectAttempts = 0;
+            };
+            
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                if (data.message) {
+                    addMessageToChat(data.message);
+                    if (!data.message.is_sent) {
+                        updateUnreadCount(activeConversationId);
+                    }
+                }
+            };
+
+            chatSocket.onclose = function(e) {
+                console.log('WebSocket connection closed:', e.code, e.reason);
+                chatSocket = null;
+                
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    const delay = reconnectDelay * Math.pow(2, reconnectAttempts - 1);
+                    console.log(`Attempting to reconnect in ${delay}ms...`);
+                    setTimeout(initializeWebSocket, delay);
+                } else {
+                    console.error('Max reconnection attempts reached');
+                }
+            };
+
+            chatSocket.onerror = function(err) {
+                console.error('WebSocket error:', err);
+            };
+        }
+    }
+
+    function addMessageToChat(data) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const message = document.createElement('div');
+        message.className = `message-group ${data.is_sent ? 'sent' : 'received'}`;
+        message.innerHTML = `
+            ${!data.is_sent ? `
+            <div class="message-avatar">
+                <img src="${data.user.avatar || '/static/default-avatar.png'}" 
+                     alt="${data.user.name}" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="avatar-fallback">${data.user.initials}</div>
+            </div>` : ''}
+            <div class="message-content">
+                <div class="message-bubble">
+                    <p class="message-text">${data.text}</p>
+                    ${data.attachment && data.attachment.url ? `
+                    <div class="message-attachment">
+                        <span class="attachment-icon">📎</span>
+                        <a href="${data.attachment.url}" class="attachment-name">${data.attachment.name}</a>
+                    </div>` : ''}
+                </div>
+                <div class="message-meta">
+                    <span class="message-time">${new Date(data.timestamp).toLocaleTimeString()}</span>
+                    ${data.is_sent ? `<span class="message-status">${data.read ? '✓✓' : '✓'}</span>` : ''}
+                </div>
+            </div>`;
+        messagesContainer.appendChild(message);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function updateUnreadCount(conversationId) {
+        const conversationItem = document.querySelector(`.conversation-item[data-chat-id="${conversationId}"]`);
+        if (conversationItem) {
+            const unreadBadge = conversationItem.querySelector('.unread-badge');
+            if (unreadBadge) {
+                const currentCount = parseInt(unreadBadge.textContent);
+                unreadBadge.textContent = currentCount + 1;
+            } else {
+                const previewDiv = conversationItem.querySelector('.conversation-preview');
+                if (previewDiv) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'unread-badge';
+                    newBadge.textContent = '1';
+                    previewDiv.appendChild(newBadge);
+                }
+            }
+        }
+        
+        const notificationBadge = document.querySelector('.notification-badge');
+        if (notificationBadge) {
+            const currentCount = parseInt(notificationBadge.textContent) || 0;
+            notificationBadge.textContent = currentCount + 1;
+        }
+    }
+
+    initializeWebSocket();
+
     // Handle conversation selection
     document.querySelectorAll('.conversation-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const chatId = item.dataset.chatId;
-            window.location.href = `{% url 'messaging:messaging' %}?chat=${chatId}`;
+        item.addEventListener('click', async () => {
+            document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            activeConversationId = item.dataset.chatId;
+            
+            if (chatSocket) chatSocket.close();
+            initializeWebSocket();
+            
+            try {
+                const response = await fetch(`/messaging/api/messages/${activeConversationId}/`, {
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch messages');
+                }
+                
+                const data = await response.json();
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = '';
+                
+                data.messages.forEach(msg => {
+                    const message = document.createElement('div');
+                    message.className = `message-group ${msg.is_sent ? 'sent' : 'received'}`;
+                    message.innerHTML = `
+                        ${!msg.is_sent ? `
+                        <div class="message-avatar">
+                            <img src="${msg.sender.avatar || '/static/default-avatar.png'}" 
+                                 alt="${msg.sender.username}" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="avatar-fallback">${msg.sender.username.slice(0, 2).toUpperCase()}</div>
+                        </div>` : ''}
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p class="message-text">${msg.text}</p>
+                                ${msg.attachment && msg.attachment.url ? `
+                                <div class="message-attachment">
+                                    <span class="attachment-icon">📎</span>
+                                    <a href="${msg.attachment.url}" class="attachment-name">${msg.attachment.name}</a>
+                                </div>` : ''}
+                            </div>
+                            <div class="message-meta">
+                                <span class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+                                ${msg.is_sent ? `<span class="message-status">${msg.read ? '✓✓' : '✓'}</span>` : ''}
+                            </div>
+                        </div>`;
+                    messagesContainer.appendChild(message);
+                });
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                await fetch(`/messaging/api/messages/${activeConversationId}/read/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                
+                const unreadBadge = item.querySelector('.unread-badge');
+                if (unreadBadge) {
+                    unreadBadge.remove();
+                }
+                
+                const notificationBadge = document.querySelector('.notification-badge');
+                if (notificationBadge) {
+                    const currentCount = parseInt(notificationBadge.textContent) || 0;
+                    const unreadCount = parseInt(unreadBadge?.textContent || '0');
+                    notificationBadge.textContent = Math.max(0, currentCount - unreadCount);
+                }
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
         });
-        
+
         item.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -821,33 +1238,82 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle message sending
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendMessage');
-    const chatMessages = document.getElementById('chatMessages');
+    const messageForm = document.getElementById('messageForm');
+if (messageForm) {
+    let isSubmitting = false;
+    messageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+        isSubmitting = true;
 
-    if (messageInput && sendButton) {
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (message) {
-                // Add message to chat (this would typically be handled by your backend)
-                console.log('Sending message:', message);
-                messageInput.value = '';
-                
-                // Scroll to bottom
-                if (chatMessages) {
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
+        const messageInput = document.getElementById('messageInput');
+        const attachmentInput = document.getElementById('attachmentInput');
+        const message = messageInput.value.trim();
+        
+        if ((message || attachmentInput.files[0]) && activeConversationId) {
+            try {
+                const formData = new FormData();
+                if (message) formData.append('message', message);
+                formData.append('conversation_id', activeConversationId);
+
+                // Get recipient from chat header data attribute
+                const chatHeader = document.querySelector('.chat-header');
+                if (!chatHeader || !chatHeader.dataset.participantId) {
+                    console.error('Could not determine recipient');
+                    isSubmitting = false;
+                    return;
                 }
+                formData.append('recipient_id', chatHeader.dataset.participantId);
+                
+                if (attachmentInput.files[0]) {
+                    formData.append('attachment', attachmentInput.files[0]);
+                }
+                
+                const response = await fetch('/messaging/send/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Server error:', errorData);
+                    throw new Error(errorData.error || 'Failed to send message');
+                }
+                
+                const data = await response.json();
+                messageInput.value = '';
+                attachmentInput.value = '';
+                
+                // Add the message to the UI
+                addMessageToChat({
+                    text: message,
+                    is_sent: true,
+                    read: false,
+                    timestamp: new Date().toISOString(),
+                    user: {
+                        name: 'You',
+                        avatar: '/static/default-avatar.png',
+                        initials: 'YU'
+                    },
+                    attachment: attachmentInput.files[0] ? {
+                        url: URL.createObjectURL(attachmentInput.files[0]),
+                        name: attachmentInput.files[0].name
+                    } : null
+                });
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert(`Error sending message: ${error.message}`);
             }
+        } else {
+            console.error('No message or attachment provided, or no active conversation');
         }
-
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-    }
+        isSubmitting = false;
+    });
+}
 
     // Handle search functionality
     const searchInput = document.getElementById('searchConversations');
@@ -857,19 +1323,102 @@ document.addEventListener('DOMContentLoaded', function() {
             const conversations = document.querySelectorAll('.conversation-item');
             
             conversations.forEach(conversation => {
-                const name = conversation.querySelector('.conversation-name').textContent.toLowerCase();
-                const preview = conversation.querySelector('.preview-text').textContent.toLowerCase();
+                const nameElement = conversation.querySelector('.conversation-name');
+                const previewElement = conversation.querySelector('.preview-text');
                 
-                if (name.includes(searchTerm) || preview.includes(searchTerm)) {
-                    conversation.style.display = 'flex';
-                } else {
-                    conversation.style.display = 'none';
+                if (nameElement && previewElement) {
+                    const name = nameElement.textContent.toLowerCase();
+                    const preview = previewElement.textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || preview.includes(searchTerm)) {
+                        conversation.style.display = 'flex';
+                    } else {
+                        conversation.style.display = 'none';
+                    }
                 }
             });
         });
     }
 
-    // Auto-scroll to bottom of messages
+    // Handle modals
+    document.querySelectorAll('[data-modal="new-message"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modal = document.getElementById('newMessageModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        });
+    });
+
+    const newMessageForm = document.getElementById('newMessageForm');
+    if (newMessageForm) {
+        newMessageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const recipientSelect = document.getElementById('recipientSelect');
+            
+            if (recipientSelect) {
+                const recipientId = recipientSelect.value;
+                window.location.href = `/messaging/?recipient=${recipientId}`;
+            }
+        });
+    }
+
+    // Notification handling
+    const notificationTrigger = document.getElementById('notificationTrigger');
+    if (notificationTrigger) {
+        notificationTrigger.addEventListener('click', () => {
+            const modal = document.getElementById('notificationsModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        });
+        
+        document.querySelectorAll('.notifications-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                document.querySelectorAll('.notifications-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.notifications-content .tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const notificationId = item.dataset.notificationId;
+                try {
+                    const response = await fetch(`/messaging/notifications/mark-read/${notificationId}/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                    });
+                    
+                    if (response.ok) {
+                        item.remove();
+                        const countElement = document.querySelector('.notification-badge');
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent) || 0;
+                            countElement.textContent = Math.max(0, currentCount - 1);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            });
+        });
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target.id === 'newMessageModal') {
+            document.getElementById('newMessageModal').style.display = 'none';
+        }
+        if (e.target.id === 'notificationsModal') {
+            document.getElementById('notificationsModal').style.display = 'none';
+        }
+    });
+
+    // Auto-scroll to bottom on page load
+    const chatMessages = document.getElementById('chatMessages');
     if (chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }

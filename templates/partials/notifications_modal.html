@@ -1,188 +1,58 @@
-<div class="modal" id="notificationsModal" style="display: none;">
+<div id="notificationsModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header">
-            <h2>Notifications</h2>
-            <button class="close-btn" id="closeNotificationsModalBtn" aria-label="Close notifications modal">×</button>
+        <div class="notifications-header">
+            <h2 class="notifications-title">Notifications</h2>
+            <button class="notifications-close" aria-label="Close notifications">&times;</button>
         </div>
-        <div class="notifications-list" id="notificationsList">
-            {% if notifications %}
-                {% for notification in notifications %}
-                    <div class="notification-item {% if not notification.read %}unread{% endif %}" data-notification-id="{{ notification.id }}">
-                        <div class="notification-message">{{ notification.message }}</div>
-                        <div class="notification-time">{{ notification.created_at|date:"M d, Y H:i" }}</div>
+        
+        <div class="notifications-tabs">
+            <button class="notifications-tab active" data-tab="chatNotifications">Chat ({{ chat_notifications.count }})</button>
+            <button class="notifications-tab" data-tab="generalNotifications">General ({{ general_notifications.count }})</button>
+        </div>
+        
+        <div class="notifications-content">
+            <!-- Chat Notifications Tab -->
+            <div id="chatNotifications" class="notifications-tab-content active">
+                {% if chat_notifications.list %}
+                    {% for notification in chat_notifications.list %}
+                    <div class="notification-item" data-id="{{ notification.id }}">
+                        <div class="notification-item-icon">💬</div>
+                        <div class="notification-item-content">
+                            <p class="notification-item-message">{{ notification.message }}</p>
+                            <small class="notification-item-time">{{ notification.created_at|timesince }} ago</small>
+                        </div>
                     </div>
-                {% endfor %}
-            {% else %}
-                <div class="no-notifications">
-                    <p>No notifications</p>
-                </div>
-            {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="notifications-empty">
+                        No chat notifications
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- General Notifications Tab -->
+            <div id="generalNotifications" class="notifications-tab-content">
+                {% if general_notifications.list %}
+                    {% for notification in general_notifications.list %}
+                    <div class="notification-item" data-id="{{ notification.id }}">
+                        <div class="notification-item-icon">🔔</div>
+                        <div class="notification-item-content">
+                            <p class="notification-item-message">{{ notification.message }}</p>
+                            <small class="notification-item-time">{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="notifications-empty">
+                        No general notifications
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        <div class="modal-actions">
-            <button class="btn-primary" id="markAllReadBtn" {% if not notifications %}disabled{% endif %}>Mark All as Read</button>
+        
+        <div class="notifications-footer">
+            <button class="notifications-action-btn notifications-clear-btn" id="clearNotifications">Clear All</button>
+            <button class="notifications-action-btn notifications-mark-read-btn" id="markAllAsRead">Mark All as Read</button>
         </div>
     </div>
 </div>
-
-<style>
-.notifications-list {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 20px;
-}
-
-.notification-item {
-    padding: 10px;
-    border-bottom: 1px solid var(--border-light);
-    transition: background-color 0.2s;
-    cursor: pointer;
-}
-
-.notification-item.unread {
-    background-color: rgba(var(--primary-rgb), 0.1);
-    font-weight: 500;
-}
-
-.notification-item:hover {
-    background-color: var(--primary-light);
-}
-
-.notification-message {
-    color: var(--text);
-}
-
-.notification-time {
-    color: var(--text-secondary);
-    font-size: 0.8em;
-    margin-top: 5px;
-}
-
-.no-notifications {
-    text-align: center;
-    color: var(--text-secondary);
-    padding: 20px;
-}
-
-body.dark-mode .notification-item {
-    border-bottom-color: var(--dark-border);
-}
-
-body.dark-mode .notification-item.unread {
-    background-color: rgba(var(--dark-primary-rgb), 0.2);
-}
-
-body.dark-mode .notification-item:hover {
-    background-color: var(--dark-primary-light);
-}
-
-body.dark-mode .notifications-list {
-    background: var(--dark-surface);
-}
-
-body.dark-mode .no-notifications {
-    color: var(--dark-text-secondary);
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const notificationsModal = document.getElementById('notificationsModal');
-    const closeNotificationsModalBtn = document.getElementById('closeNotificationsModalBtn');
-    const markAllReadBtn = document.getElementById('markAllReadBtn');
-    const notificationTrigger = document.getElementById('notificationTrigger');
-
-    // Open modal when bell icon is clicked
-    if (notificationTrigger && notificationsModal) {
-        notificationTrigger.addEventListener('click', function() {
-            notificationsModal.style.display = 'flex';
-        });
-    }
-
-    // Close modal
-    if (closeNotificationsModalBtn) {
-        closeNotificationsModalBtn.addEventListener('click', function() {
-            notificationsModal.style.display = 'none';
-        });
-    }
-
-    // Close modal when clicking outside
-    if (notificationsModal) {
-        notificationsModal.addEventListener('click', function(e) {
-            if (e.target === notificationsModal) {
-                notificationsModal.style.display = 'none';
-            }
-        });
-    }
-
-    // Mark all notifications as read
-    if (markAllReadBtn) {
-        markAllReadBtn.addEventListener('click', function() {
-            fetch('/tasks/notifications/mark-all-read/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    document.querySelectorAll('.notification-item').forEach(item => {
-                        item.classList.remove('unread');
-                    });
-                    document.querySelector('.notification-badge').textContent = '0';
-                    markAllReadBtn.disabled = true;
-                    // Use existing showNotification if available, else fallback
-                    if (typeof showNotification === 'function') {
-                        showNotification('All notifications marked as read', 'success');
-                    } else {
-                        const notification = document.createElement('div');
-                        notification.className = 'notification-toast success';
-                        notification.textContent = 'All notifications marked as read';
-                        notification.style.position = 'fixed';
-                        notification.style.bottom = '20px';
-                        notification.style.right = '20px';
-                        notification.style.padding = '12px 20px';
-                        notification.style.borderRadius = '8px';
-                        notification.style.background = 'var(--success, #28a745)';
-                        notification.style.color = 'white';
-                        notification.style.zIndex = '2000';
-                        document.body.appendChild(notification);
-                        setTimeout(() => notification.remove(), 3000);
-                    }
-                } else {
-                    if (typeof showNotification === 'function') {
-                        showNotification('Error marking notifications as read', 'error');
-                    } else {
-                        alert('Error marking notifications as read');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error marking notifications as read:', error);
-                if (typeof showNotification === 'function') {
-                    showNotification('Error marking notifications as read', 'error');
-                } else {
-                    alert('Error marking notifications as read');
-                }
-            });
-        });
-    }
-
-    // Helper function to get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-});
-</script>

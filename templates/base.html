@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Virtual Office{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -37,12 +38,10 @@
                 <div class="nav-item {% if 'tasks' in request.path %}active{% endif %}" role="button" tabindex="0" data-url="{% url 'tasks:tasks' %}">
                     <div class="nav-icon">📝</div>
                     <div class="nav-text">Office Tasks</div>
-                    <div class="nav-badge" id="task-count">{{ task_count|default:0 }}</div>
                 </div>
                 <div class="nav-item {% if 'messaging' in request.path %}active{% endif %}" role="button" tabindex="0" data-url="{% url 'messaging:messaging' %}">
                     <div class="nav-icon">💬</div>
                     <div class="nav-text">Messaging</div>
-                    <div class="nav-badge" id="message-count">{{ message_count|default:0 }}</div>
                 </div>
                 <div class="nav-item {% if 'reports' in request.path %}active{% endif %}" role="button" tabindex="0" data-url="{% url 'reports:reports' %}">
                     <div class="nav-icon">📊</div>
@@ -62,18 +61,19 @@
         {% endif %}
         <main class="main-content" id="mainContent">
             {% if user.is_authenticated %}
-            <div class="mobile-header">
-                <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-                <div class="logo">📊 Virtual Office</div>
-                <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
-                    <span class="notification-icon">🔔</span>
-                    <span class="notification-badge" id="notification-count">{{ notification_count|default:0 }}</span>
-                </div>
-            </div>
+            <!-- In the mobile-header section of base.html -->
+<div class="mobile-header">
+    <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="logo">📊 Virtual Office</div>
+    <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
+        <span class="notification-icon">🔔</span>
+        <span class="notification-badge" id="notification-count">{{ chat_notifications.count|add:general_notifications.count|default:0 }}</span>
+    </div>
+</div>
             {% endif %}
             <div class="container">
                 {% block content %}
@@ -81,6 +81,8 @@
             </div>
         </main>
     </div>
+    
+    
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}
     <style>
@@ -115,6 +117,7 @@
         body.dark-mode .nav-badge {
             background-color: var(--dark-primary-color, #1a73e8);
         }
+
     </style>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -153,51 +156,51 @@
         }
 
         // Fetch task updates for sidebar badge
-        function fetchTaskUpdates() {
-            console.log('Fetching task updates from /dashboard/task_updates/'); // Debug: Confirm fetch
-            const taskCountEl = document.getElementById('task-count');
-            if (!taskCountEl) {
-                console.error('Task count element not found');
-                showToast('Error: Task count element not found', 'error');
-                return;
-            }
+        // function fetchTaskUpdates() {
+        //     console.log('Fetching task updates from /dashboard/task_updates/'); // Debug: Confirm fetch
+        //     const taskCountEl = document.getElementById('task-count');
+        //     if (!taskCountEl) {
+        //         console.error('Task count element not found');
+        //         showToast('Error: Task count element not found', 'error');
+        //         return;
+        //     }
 
-            fetch('/dashboard/task_updates/', {
-                method: 'GET',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status); // Debug: Log response status
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Task updates response:', data); // Debug: Log response data
-                if (data.status === 'success') {
-                    const newCount = data.tasks.count;
-                    if (taskCountEl.textContent != newCount) {
-                        taskCountEl.textContent = newCount;
-                        showToast('Task count updated', 'success');
-                    }
-                } else {
-                    showToast('Error fetching task count: ' + (data.message || 'Unknown error'), 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching task updates:', error); // Debug: Log error
-                showToast('Error fetching task count: ' + error.message, 'error');
-            });
-        }
+        //     fetch('/dashboard/task_updates/', {
+        //         method: 'GET',
+        //         headers: {
+        //             'X-CSRFToken': getCookie('csrftoken'),
+        //             'Accept': 'application/json'
+        //         }
+        //     })
+        //     .then(response => {
+        //         console.log('Response status:', response.status); // Debug: Log response status
+        //         if (!response.ok) {
+        //             throw new Error(`HTTP error! Status: ${response.status}`);
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         console.log('Task updates response:', data); // Debug: Log response data
+        //         if (data.status === 'success') {
+        //             const newCount = data.tasks.count;
+        //             if (taskCountEl.textContent != newCount) {
+        //                 taskCountEl.textContent = newCount;
+        //                 showToast('Task count updated', 'success');
+        //             }
+        //         } else {
+        //             showToast('Error fetching task count: ' + (data.message || 'Unknown error'), 'error');
+        //         }
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching task updates:', error); // Debug: Log error
+        //         showToast('Error fetching task count: ' + error.message, 'error');
+        //     });
+        // }
 
-        // Initial fetch and set interval for updates
-        console.log('Initializing task updates'); // Debug: Confirm initialization
-        fetchTaskUpdates();
-        setInterval(fetchTaskUpdates, 30000);
+        // // Initial fetch and set interval for updates
+        // console.log('Initializing task updates'); // Debug: Confirm initialization
+        // fetchTaskUpdates();
+        // setInterval(fetchTaskUpdates, 30000);
 
         // Sidebar navigation
         document.querySelectorAll('.nav-item[data-url]').forEach(item => {

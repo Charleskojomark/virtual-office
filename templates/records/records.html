@@ -20,27 +20,31 @@
     </div>
 
     <!-- Search and Filter Bar -->
-    <div class="search-filter-bar">
-        <input type="text" id="search-input" class="search-input" placeholder="Search records by name..." />
-        <div class="filter-group">
-            <label for="record-type-filter">Record Type:</label>
-            <select id="record-type-filter" class="filter-select">
-                <option value="all">All Types</option>
-                {% for record_type in record_types %}
-                    <option value="{{ record_type.id }}">{{ record_type.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="filter-group">
-            <label for="status-filter">Status:</label>
-            <select id="status-filter" class="filter-select">
-                <option value="all">All Statuses</option>
-                {% for status in status_choices %}
-                    <option value="{{ status.0 }}">{{ status.1 }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
+        <!-- Modify the search-filter-bar div to include a form -->
+        <form id="filter-form" method="GET" action="{% url 'records:records' %}">
+            <div class="search-filter-bar">
+                <input type="text" name="search" id="search-input" class="search-input" placeholder="Search records by name..." value="{{ current_filters.search }}" />
+                <div class="filter-group">
+                    <label for="record-type-filter">Record Type:</label>
+                    <select id="record-type-filter" class="filter-select" name="record-type-filter">
+                        <option value="all" {% if current_filters.record_type == 'all' %}selected{% endif %}>All Types</option>
+                        {% for record_type in record_type_choices %}
+                            <option value="{{ record_type.0 }}" {% if record_type.0 == current_filters.record_type %}selected{% endif %}>{{ record_type.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="status-filter">Status:</label>
+                    <select id="status-filter" class="filter-select" name="status-filter">
+                        <option value="all" {% if current_filters.status == 'all' %}selected{% endif %}>All Statuses</option>
+                        {% for status in status_choices %}
+                            <option value="{{ status.0 }}" {% if status.0 == current_filters.status %}selected{% endif %}>{{ status.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="filter-btn" style="display:none">Apply</button>
+            </div>
+        </form>
 
     <!-- Records Table -->
     <div class="records-table-container">
@@ -58,11 +62,10 @@
                 {% for record in records %}
                     <tr class="record-row" data-record-id="{{ record.id }}">
                         <td>{{ record.name }}</td>
-                        <td>{{ record.record_type.name }}</td>
+                        <td>{{ record.get_record_type_display }}</td>
                         <td>{{ record.date_created|date:"Y-m-d" }}</td>
                         <td>{{ record.status }}</td>
                         <td class="actions">
-                            <a href="{% url 'records:view_record' record.id %}" class="view-btn">View</a>
                             <button class="delete-record-btn" data-record-id="{{ record.id }}" data-delete-url="{% url 'records:delete_record' record.id %}">Delete</button>
                         </td>
                     </tr>
@@ -79,7 +82,49 @@
         </table>
     </div>
 </div>
-{% include 'partials/new_record_modal.html' %}
+<!-- Notifications Modal -->
+<div id="notificationsModal" style="display: none;">
+    <div class="modal-content">
+        <div class="notifications-tabs">
+            <button class="tab-btn active" data-tab="chat-notifications">Chat ({{ chat_notifications.count }})</button>
+            <button class="tab-btn" data-tab="general-notifications">General ({{ general_notifications.count }})</button>
+        </div>
+        
+        <div class="notifications-content">
+            <div id="chat-notifications" class="tab-content active">
+                {% if chat_notifications.list %}
+                    {% for notification in chat_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new chat notifications</p>
+                {% endif %}
+            </div>
+            
+            <div id="general-notifications" class="tab-content">
+                {% if general_notifications.list %}
+                    {% for notification in general_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new general notifications</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -229,26 +274,6 @@ body.dark-mode .records-table td {
     gap: 10px;
 }
 
-.view-btn {
-    background: var(--accent);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.view-btn:hover {
-    background: var(--accent-dark);
-    transform: translateY(-1px);
-}
-
-body.dark-mode .view-btn {
-    background: var(--dark-accent);
-}
-
 .delete-record-btn {
     background: #ff4757;
     color: white;
@@ -286,9 +311,375 @@ body.dark-mode .view-btn {
 body.dark-mode .empty-state p {
     color: var(--dark-text-light);
 }
+    /* Notifications Modal Styles */
+#notificationsModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.notifications-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-light);
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.notifications-content {
+    padding: 20px;
+    max-height: calc(80vh - 60px);
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.notification-item {
+    display: flex;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.notification-icon {
+    font-size: 1.5em;
+    padding-top: 2px;
+}
+
+.notification-text p {
+    margin: 0 0 5px 0;
+    font-size: 0.95em;
+}
+
+.notification-text small {
+    color: var(--text-light);
+    font-size: 0.85em;
+}
+
+.empty-notifications {
+    text-align: center;
+    color: var(--text-light);
+    padding: 20px 0;
+}
 </style>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/records.js' %}"></script>
+<script>
+    // records.js - Merged client-side and server-side filter functionality
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get filter elements
+    const searchInput = document.getElementById('search-input');
+    const recordTypeFilter = document.getElementById('record-type-filter');
+    const statusFilter = document.getElementById('status-filter');
+    const tableBody = document.getElementById('records-table-body');
+
+    // Check for missing elements
+    const requiredElements = ['search-input', 'record-type-filter', 'status-filter', 'records-table-body'];
+    const missingElements = requiredElements.filter(id => !document.getElementById(id));
+    if (missingElements.length > 0) {
+        console.warn('Missing required elements:', missingElements);
+        return;
+    }
+
+    // Store original table rows for client-side filtering
+    const originalRows = Array.from(tableBody.querySelectorAll('.record-row'));
+
+    // Initialize filters from URL parameters or currentFilters
+    function initializeFilters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentFilters = window.currentFilters || {};
+
+        searchInput.value = currentFilters.search || urlParams.get('search') || '';
+        recordTypeFilter.value = currentFilters.record_type || urlParams.get('record-type-filter') || 'all';
+        statusFilter.value = currentFilters.status || urlParams.get('status-filter') || 'all';
+
+        // Apply client-side filters on initialization
+        applyClientSideFilters();
+    }
+
+    // Function to apply client-side filters
+    function applyClientSideFilters() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedRecordType = recordTypeFilter.value;
+        const selectedStatus = statusFilter.value;
+
+        originalRows.forEach(row => {
+            const name = row.cells[0].textContent.toLowerCase();
+            const recordType = row.cells[1].textContent.trim();
+            const status = row.cells[3].textContent.trim();
+
+            const matchesSearch = !searchTerm || name.includes(searchTerm);
+            const matchesRecordType = selectedRecordType === 'all' || recordType === getRecordTypeDisplayName(selectedRecordType);
+            const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
+
+            row.style.display = matchesSearch && matchesRecordType && matchesStatus ? '' : 'none';
+        });
+
+        updateEmptyState();
+    }
+
+    // Function to get display name for record type
+    function getRecordTypeDisplayName(value) {
+        const typeMap = {
+            'Image': 'Image',
+            'Document': 'Document',
+            'Video': 'Video',
+            'Audio': 'Audio',
+            'Other': 'Other'
+        };
+        return typeMap[value] || value;
+    }
+
+    // Function to update empty state
+    function updateEmptyState() {
+        const visibleRows = originalRows.filter(row => row.style.display !== 'none');
+        const emptyRow = tableBody.querySelector('tr:not(.record-row)');
+
+        if (visibleRows.length === 0 && originalRows.length > 0) {
+            if (!emptyRow) {
+                const noResultsRow = document.createElement('tr');
+                noResultsRow.innerHTML = `
+                    <td colspan="5" class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <p>No records match your current filters.</p>
+                        <button class="auth-btn" onclick="clearFilters()">Clear Filters</button>
+                    </td>
+                `;
+                noResultsRow.classList.add('no-results-row');
+                tableBody.appendChild(noResultsRow);
+            }
+        } else {
+            const noResultsRow = tableBody.querySelector('.no-results-row');
+            if (noResultsRow) {
+                noResultsRow.remove();
+            }
+        }
+    }
+
+    // Function to clear all filters
+    window.clearFilters = function() {
+        searchInput.value = '';
+        recordTypeFilter.value = 'all';
+        statusFilter.value = 'all';
+        applyClientSideFilters();
+        updateServerSideFilters();
+    };
+
+    // Function to update server-side filters
+    function updateServerSideFilters() {
+        const params = new URLSearchParams(window.location.search);
+
+        if (searchInput.value.trim()) {
+            params.set('search', searchInput.value.trim());
+        } else {
+            params.delete('search');
+        }
+
+        if (recordTypeFilter.value && recordTypeFilter.value !== 'all') {
+            params.set('record-type-filter', recordTypeFilter.value);
+        } else {
+            params.delete('record-type-filter');
+        }
+
+        if (statusFilter.value && statusFilter.value !== 'all') {
+            params.set('status-filter', statusFilter.value);
+        } else {
+            params.delete('status-filter');
+        }
+
+        const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+        window.location.href = newUrl;
+    }
+
+    // Add event listeners for filters
+    let debounceTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            applyClientSideFilters();
+            updateServerSideFilters();
+        }, 300);
+    });
+
+    recordTypeFilter.addEventListener('change', () => {
+        applyClientSideFilters();
+        updateServerSideFilters();
+    });
+
+    statusFilter.addEventListener('change', () => {
+        applyClientSideFilters();
+        updateServerSideFilters();
+    });
+
+    // Handle delete record functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-record-btn')) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to delete this record?')) {
+                const recordId = e.target.dataset.recordId;
+                const deleteUrl = e.target.dataset.deleteUrl;
+                const row = e.target.closest('tr');
+                const originalText = e.target.textContent;
+
+                // Show loading state
+                e.target.textContent = 'Deleting...';
+                e.target.disabled = true;
+
+                deleteRecord(recordId, deleteUrl, row, e.target, originalText);
+            }
+        }
+    });
+
+    // Function to delete record
+    function deleteRecord(recordId, deleteUrl, row, button, originalText) {
+        fetch(deleteUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Remove row from original rows array
+                const index = originalRows.indexOf(row);
+                if (index > -1) {
+                    originalRows.splice(index, 1);
+                }
+
+                // Remove row from DOM
+                row.remove();
+                updateEmptyState();
+                showNotification(data.message, 'success');
+            } else {
+                throw new Error(data.message || 'Unknown error');
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            showNotification(`Failed to delete record: ${error.message}`, 'error');
+        })
+        .finally(() => {
+            // Reset button state
+            button.textContent = originalText;
+            button.disabled = false;
+        });
+    }
+
+    // Function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Notification handling
+    const notificationTrigger = document.getElementById('notificationTrigger');
+    if (notificationTrigger) {
+        notificationTrigger.addEventListener('click', () => {
+            const modal = document.getElementById('notificationsModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        });
+        
+        document.querySelectorAll('.notifications-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                document.querySelectorAll('.notifications-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.notifications-content .tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const notificationId = item.dataset.notificationId;
+                try {
+                    const response = await fetch(`/messaging/notifications/mark-read/${notificationId}/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                    });
+                    
+                    if (response.ok) {
+                        item.remove();
+                        const countElement = document.querySelector('.notification-badge');
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent) || 0;
+                            countElement.textContent = Math.max(0, currentCount - 1);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            });
+        });
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        
+        if (e.target.id === 'notificationsModal') {
+            document.getElementById('notificationsModal').style.display = 'none';
+        }
+    });
+
+    // Initialize filters
+    initializeFilters();
+});
+</script>
 {% endblock %}

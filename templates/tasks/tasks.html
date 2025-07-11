@@ -1245,27 +1245,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Periodic refresh for real-time updates
-    function fetchTaskUpdates() {
-        fetch('/tasks/check_updates/', {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success' && data.has_updates) {
-                showToast('New tasks assigned! Refreshing task list.', 'success');
-                location.reload(); // Simplified to reload for full table update
-            }
-        })
-        .catch(error => {
-            console.error('Error checking for updates:', error);
-            showToast('Error checking for task updates.', 'error');
-        });
-    }
+    // function fetchTaskUpdates() {
+    //     fetch('/tasks/check_updates/', {
+    //         method: 'GET',
+    //         headers: {
+    //             'X-CSRFToken': getCookie('csrftoken')
+    //         }
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.status === 'success' && data.has_updates) {
+    //             showToast('New tasks assigned! Refreshing task list.', 'success');
+    //             location.reload(); // Simplified to reload for full table update
+    //         }
+    //     })
+    //     .catch(error => {
+    //         console.error('Error checking for updates:', error);
+    //         showToast('Error checking for task updates.', 'error');
+    //     });
+    // }
     
-    setInterval(fetchTaskUpdates, 30000);
+    // setInterval(fetchTaskUpdates, 30000);
     
     // Initialize tooltips for icons and assignee names
     document.querySelectorAll('[aria-label], .assignee-name').forEach(element => {

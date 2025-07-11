@@ -4,7 +4,7 @@
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
-        <form method="post" action="{% url 'records:add_record' %}">
+        <form method="post" action="{% url 'records:add_record' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="record-name">Name:</label>
@@ -12,10 +12,10 @@
             </div>
             <div class="form-group">
                 <label for="record-type">Record Type:</label>
-                <select id="record-type" name="record_type" required>
+                <select id="record-type" name="record_type">
                     <option value="">Select a type</option>
-                    {% for record_type in record_types %}
-                        <option value="{{ record_type.id }}">{{ record_type.name }}</option>
+                    {% for record_type in record_type_choices %}
+                        <option value="{{ record_type.0 }}">{{ record_type.1 }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -26,6 +26,10 @@
                         <option value="{{ status.0 }}">{{ status.1 }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="record-file">File (optional):</label>
+                <input type="file" id="record-file" name="file" />
             </div>
             <div class="form-actions">
                 <button type="submit" class="auth-btn">Save</button>

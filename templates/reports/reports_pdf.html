@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Task Reports</title>
+    <style>
+        /* Only basic, PDF-safe CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        h1 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+        
+        h2 {
+            font-size: 16px;
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        
+        h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .summary-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        
+        .summary-grid {
+            display: block;
+        }
+        
+        .summary-item {
+            display: block;
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        
+        .summary-item strong {
+            font-weight: bold;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 11px;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .chart-placeholder {
+            background: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .data-section {
+            margin-bottom: 30px;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        /* Remove any potential problematic styles */
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* No animations, transitions, or transforms */
+    </style>
+</head>
+<body>
+    <h1>Task Management Reports</h1>
+    
+    <div class="summary-section">
+        <h2>Summary Statistics</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <strong>Completed Tasks:</strong> {{ summary.completed_tasks }}
+            </div>
+            <div class="summary-item">
+                <strong>Missed Appointments:</strong> {{ summary.missed_appointments }}
+            </div>
+            <div class="summary-item">
+                <strong>New Registrations:</strong> {{ summary.new_registrations }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="data-section">
+        <h2>Tasks Overview</h2>
+        <div class="chart-placeholder">
+            <strong>Tasks Completed vs Overdue</strong><br>
+            Completed: {{ tasks_bar_data.data.0 }}<br>
+            Overdue: {{ tasks_bar_data.data.1 }}
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Completed Tasks</td>
+                    <td>{{ tasks_bar_data.data.0 }}</td>
+                </tr>
+                <tr>
+                    <td>Overdue Tasks</td>
+                    <td>{{ tasks_bar_data.data.1 }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="data-section">
+        <h2>Monthly Task Completion</h2>
+        <div class="chart-placeholder">
+            Monthly Task Completion Trend<br>
+            (Chart data available in table below)
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Completed Tasks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for label in task_completion_data.labels %}
+                <tr>
+                    <td>{{ label }}</td>
+                    <td>{{ task_completion_data.data|slice:forloop.counter0|slice:":1"|first }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="data-section page-break">
+        <h2>User Activity</h2>
+        <div class="chart-placeholder">
+            User Activity Distribution<br>
+            (Chart data available in table below)
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Task Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for label in user_activity_data.labels %}
+                <tr>
+                    <td>{{ label }}</td>
+                    <td>{{ user_activity_data.data|slice:forloop.counter0|slice:":1"|first }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No user activity data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="data-section">
+        <h2>New User Registrations</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Date Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in new_users %}
+                <tr>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No new users in selected period</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #666;">
+        Generated on {{ "now"|date:"Y-m-d H:i" }}
+    </div>
+</body>
+</html>

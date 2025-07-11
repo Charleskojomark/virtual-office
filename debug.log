@@ -1,0 +1,814 @@
+2025-07-10 13:10:10,372 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:10:10,372 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:10:10,375 DEBUG Total tasks: 1
+2025-07-10 13:10:10,375 DEBUG Completed tasks: 1
+2025-07-10 13:10:10,380 DEBUG Overdue tasks: 0
+2025-07-10 13:10:10,380 DEBUG Summary completed tasks: 1
+2025-07-10 13:10:10,380 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:10:10,380 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:10:10,380 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:10:10,382 DEBUG Sample tasks:
+2025-07-10 13:10:10,390 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:10:16,962 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:10:16,963 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:10:16,964 DEBUG Total tasks: 1
+2025-07-10 13:10:16,965 DEBUG Completed tasks: 1
+2025-07-10 13:10:16,965 DEBUG Overdue tasks: 0
+2025-07-10 13:10:16,965 DEBUG Summary completed tasks: 1
+2025-07-10 13:10:16,965 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:10:16,965 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:10:16,965 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:10:16,966 DEBUG Sample tasks:
+2025-07-10 13:10:16,974 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:12:58,519 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:12:58,521 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:12:58,538 DEBUG Total tasks: 1
+2025-07-10 13:12:58,538 DEBUG Completed tasks: 1
+2025-07-10 13:12:58,539 DEBUG Overdue tasks: 0
+2025-07-10 13:12:58,539 DEBUG Summary completed tasks: 1
+2025-07-10 13:12:58,539 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:12:58,539 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:12:58,539 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:12:58,541 DEBUG Sample tasks:
+2025-07-10 13:12:58,550 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:13:11,384 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:16:26,432 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:16:26,433 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:16:26,437 DEBUG Total tasks: 1
+2025-07-10 13:16:26,439 DEBUG Completed tasks: 1
+2025-07-10 13:16:26,440 DEBUG Overdue tasks: 0
+2025-07-10 13:16:26,440 DEBUG Summary completed tasks: 1
+2025-07-10 13:16:26,441 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:16:26,441 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:16:26,441 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:16:26,443 DEBUG Sample tasks:
+2025-07-10 13:16:26,452 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:16:34,565 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:18:51,022 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:18:51,022 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:18:51,024 DEBUG Total tasks: 1
+2025-07-10 13:18:51,024 DEBUG Completed tasks: 1
+2025-07-10 13:18:51,024 DEBUG Overdue tasks: 0
+2025-07-10 13:18:51,025 DEBUG Summary completed tasks: 1
+2025-07-10 13:18:51,026 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:18:51,027 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:18:51,029 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:18:51,030 DEBUG Sample tasks:
+2025-07-10 13:18:51,039 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:18:51,466 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:21:19,923 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:21:19,924 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:21:19,928 DEBUG Total tasks: 1
+2025-07-10 13:21:19,929 DEBUG Completed tasks: 1
+2025-07-10 13:21:19,929 DEBUG Overdue tasks: 0
+2025-07-10 13:21:19,929 DEBUG Summary completed tasks: 1
+2025-07-10 13:21:19,930 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:21:19,930 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:21:19,930 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:21:19,931 DEBUG Sample tasks:
+2025-07-10 13:21:19,938 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:21:20,098 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:22:54,832 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:22:54,833 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:22:54,835 DEBUG Total tasks: 1
+2025-07-10 13:22:54,835 DEBUG Completed tasks: 1
+2025-07-10 13:22:54,835 DEBUG Overdue tasks: 0
+2025-07-10 13:22:54,835 DEBUG Summary completed tasks: 1
+2025-07-10 13:22:54,835 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:22:54,835 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:22:54,835 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:22:54,836 DEBUG Sample tasks:
+2025-07-10 13:22:54,843 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:22:55,042 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:25:42,093 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:25:42,094 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:25:42,095 DEBUG Total tasks: 1
+2025-07-10 13:25:42,096 DEBUG Completed tasks: 1
+2025-07-10 13:25:42,096 DEBUG Overdue tasks: 0
+2025-07-10 13:25:42,096 DEBUG Summary completed tasks: 1
+2025-07-10 13:25:42,096 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:25:42,097 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:25:42,097 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:25:42,101 DEBUG Sample tasks:
+2025-07-10 13:25:42,105 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:25:42,247 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:29:01,342 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:29:01,343 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:29:01,345 DEBUG Total tasks: 1
+2025-07-10 13:29:01,345 DEBUG Completed tasks: 1
+2025-07-10 13:29:01,346 DEBUG Overdue tasks: 0
+2025-07-10 13:29:01,346 DEBUG Summary completed tasks: 1
+2025-07-10 13:29:01,346 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:29:01,346 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:29:01,346 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:29:01,347 DEBUG Sample tasks:
+2025-07-10 13:29:01,357 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:29:01,535 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:32:39,974 DEBUG Request URL: /reports/?date-filter=all&user-filter=1
+2025-07-10 13:32:39,975 DEBUG Date filter: all, User filter: 1
+2025-07-10 13:32:39,977 DEBUG Total tasks: 1
+2025-07-10 13:32:39,978 DEBUG Completed tasks: 1
+2025-07-10 13:32:39,978 DEBUG Overdue tasks: 0
+2025-07-10 13:32:39,978 DEBUG Summary completed tasks: 1
+2025-07-10 13:32:39,978 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:32:39,978 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:32:39,979 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:32:39,980 DEBUG Sample tasks:
+2025-07-10 13:32:39,985 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:32:40,179 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:32:51,835 DEBUG Request URL: /reports/?date-filter=all&user-filter=all
+2025-07-10 13:32:51,835 DEBUG Date filter: all, User filter: all
+2025-07-10 13:32:51,836 DEBUG Total tasks: 1
+2025-07-10 13:32:51,837 DEBUG Completed tasks: 1
+2025-07-10 13:32:51,837 DEBUG Overdue tasks: 0
+2025-07-10 13:32:51,837 DEBUG Summary completed tasks: 1
+2025-07-10 13:32:51,837 DEBUG Tasks bar data: {'labels': ['Completed', 'Overdue'], 'data': [1, 0]}
+2025-07-10 13:32:51,837 DEBUG Task completion data: {'labels': ['Jul 2025'], 'data': [1]}
+2025-07-10 13:32:51,837 DEBUG User activity data: {'labels': ['Ebuka Mark', 'Charles Mark'], 'data': [1, 1]}
+2025-07-10 13:32:51,839 DEBUG Sample tasks:
+2025-07-10 13:32:51,843 DEBUG   Task: another, Status: Completed, Due: 2025-07-09, Created: 2025-07-08 10:08:35.134972+00:00, User: mkcharles, Assigned: ['ebuka']
+2025-07-10 13:32:52,005 WARNING Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-10 13:33:19,486 INFO /Users/charles/DEV/office/reports/views.py changed, reloading.
+Internal Server Error: /dashboard/task_updates/
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 235, in _get_response_async
+    callback, callback_args, callback_kwargs = self.resolve_request(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 313, in resolve_request
+    resolver_match = resolver.resolve(request.path_info)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/resolvers.py", line 663, in resolve
+    for pattern in self.url_patterns:
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/resolvers.py", line 715, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/resolvers.py", line 708, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+  File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+  File "/Users/charles/DEV/office/./office/urls.py", line 14, in <module>
+    path('messaging/', include('messaging.urls')),
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/conf.py", line 38, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+  File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+  File "/Users/charles/DEV/office/./messaging/urls.py", line 2, in <module>
+    from . import views, consumers
+  File "/Users/charles/DEV/office/./messaging/views.py", line 18, in <module>
+    from django.core.validators import FileExtensionValidator, validate_image_file_extension
+  File "/Users/charles/DEV/office/./messaging/views.py", line 42, in MessageForm
+    'invalid': 'Conversation ID must be a valid number'
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/forms/fields.py", line 637, in __init__
+    super().__init__(**kwargs)
+TypeError: __init__() got an unexpected keyword argument 'max_size'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/deprecation.py", line 150, in __acall__
+    response = response or await self.get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 44, in inner
+    response = await sync_to_async(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 520, in thread_handler
+    return func(*args, **kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 141, in response_for_exception
+    response = handle_uncaught_exception(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 182, in handle_uncaught_exception
+    return debug.technical_500_response(request, *exc_info)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/views/debug.py", line 70, in technical_500_response
+    text = reporter.get_traceback_text()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/views/debug.py", line 417, in get_traceback_text
+    c = Context(self.get_traceback_data(), autoescape=False, use_l10n=False)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/views/debug.py", line 393, in get_traceback_data
+    c["raising_view_name"] = get_caller(self.request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/views/debug.py", line 100, in get_caller
+    resolver_match = resolve(request.path)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/base.py", line 24, in resolve
+    return get_resolver(urlconf).resolve(path)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/resolvers.py", line 663, in resolve
+    for pattern in self.url_patterns:
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/resolvers.py", line 715, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/resolvers.py", line 708, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+  File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+  File "/Users/charles/DEV/office/./office/urls.py", line 14, in <module>
+    path('messaging/', include('messaging.urls')),
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/urls/conf.py", line 38, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+  File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+  File "/Users/charles/DEV/office/./messaging/urls.py", line 2, in <module>
+    from . import views, consumers
+  File "/Users/charles/DEV/office/./messaging/views.py", line 18, in <module>
+    from django.core.validators import FileExtensionValidator, validate_image_file_extension
+  File "/Users/charles/DEV/office/./messaging/views.py", line 42, in MessageForm
+    'invalid': 'Conversation ID must be a valid number'
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/forms/fields.py", line 637, in __init__
+    super().__init__(**kwargs)
+TypeError: __init__() got an unexpected keyword argument 'max_size'
+Internal Server Error: /messaging/
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 505, in parse
+    compile_func = self.tags[command]
+KeyError: 'else'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/charles/DEV/office/./messaging/views.py", line 164, in messaging
+    return render(request, 'messaging/messaging.html', context)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/engine.py", line 175, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 200, in compile_nodelist
+    return parser.parse()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 293, in do_extends
+    nodelist = parser.parse()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 232, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 507, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 558, in invalid_block_tag
+    raise self.error(
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 160: 'else', expected 'endblock'. Did you forget to register or load this tag?
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/js/main.js
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['3'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Error creating message: Notification() got unexpected keyword arguments: 'notification_type', 'related_id'
+Internal Server Error: /messaging/send/
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['xup'], 'conversation_id': ['3'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 2
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['3'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 3
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/js/main.js
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/js/main.js
+Watching for file changes with StatReloader
+"GET /reports/ HTTP/1.1" 200 29862
+"GET /static/js/main.js HTTP/1.1" 200 13022
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3316
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+- Broken pipe from ('127.0.0.1', 50361)
+"GET /messaging/ HTTP/1.1" 200 57242
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3316
+"GET /static/default-avatar.png HTTP/1.1" 404 1813
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+- Broken pipe from ('127.0.0.1', 50395)
+- Broken pipe from ('127.0.0.1', 50345)
+"GET /tasks/ HTTP/1.1" 200 76716
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3316
+"GET /tasks/4/ HTTP/1.1" 200 210
+"GET /messaging/ HTTP/1.1" 200 57242
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+- Broken pipe from ('127.0.0.1', 50413)
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3316
+"GET /static/default-avatar.png HTTP/1.1" 404 1813
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+- Broken pipe from ('127.0.0.1', 50432)
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+- Broken pipe from ('127.0.0.1', 50458)
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+- Broken pipe from ('127.0.0.1', 50620)
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+- Broken pipe from ('127.0.0.1', 50694)
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+"GET /dashboard/task_updates/ HTTP/1.1" 200 92
+Not Found: /ws/messaging/3/
+"GET /ws/messaging/3/ HTTP/1.1" 404 3217
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['3'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 4
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/js/records.js
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['3'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 5
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hre4'], 'conversation_id': ['3'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 6
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/charles/DEV/office/./dashboard/views.py", line 105, in dashboard
+    return render(request, 'dashboard/dashboard.html', context)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 173, in render
+    with context.bind_template(self):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 117, in __enter__
+    return next(self.gen)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/context.py", line 251, in bind_template
+    processors = template.engine.template_context_processors + self._processors
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/functional.py", line 57, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/engine.py", line 116, in template_context_processors
+    return tuple(import_string(path) for path in context_processors)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/engine.py", line 116, in <genexpr>
+    return tuple(import_string(path) for path in context_processors)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/module_loading.py", line 30, in import_string
+    return cached_import(module_path, class_name)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/module_loading.py", line 15, in cached_import
+    module = import_module(module_path)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 984, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'messaging.context_processors'
+Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/charles/DEV/office/./dashboard/views.py", line 105, in dashboard
+    return render(request, 'dashboard/dashboard.html', context)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 173, in render
+    with context.bind_template(self):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 117, in __enter__
+    return next(self.gen)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/context.py", line 254, in bind_template
+    updates.update(processor(self.request))
+  File "/Users/charles/DEV/office/./messaging/context_processors.py", line 6, in notifications
+    'count': request.user.notifications.filter(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/functional.py", line 268, in inner
+    return func(_wrapped, *args)
+AttributeError: 'User' object has no attribute 'notifications'
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/js/records.js
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/js/records.js
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/js/records.js
+Not Found: /static/js/records.js
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/js/records.js
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Internal Server Error: /records/
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/charles/DEV/office/./records/views.py", line 44, in records_view
+    return render(request, 'records/records.html', context)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/engine.py", line 175, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 200, in compile_nodelist
+    return parser.parse()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 293, in do_extends
+    nodelist = parser.parse()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 226, in do_block
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'extra_js' appears more than once
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/css/main.css
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/default-avatar.png
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/css/main.css
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/js/main.js
+Not Found: /static/css/main.css
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /favicon.ico
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hu'], 'conversation_id': ['2'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Conversation error: Recipient not in specified conversation
+Bad Request: /messaging/send/
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['3'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 7
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hello'], 'conversation_id': ['3'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 8
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['2'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Conversation error: Recipient not in specified conversation
+Bad Request: /messaging/send/
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['1'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Conversation error: Recipient not in specified conversation
+Bad Request: /messaging/send/
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
