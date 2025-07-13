@@ -121,8 +121,50 @@
         </form>
     </div>
 </div>
+<!-- Notifications Modal -->
+<div id="notificationsModal" style="display: none;">
+    <div class="modal-content">
+        <div class="notifications-tabs">
+            <button class="tab-btn active" data-tab="chat-notifications">Chat ({{ chat_notifications.count }})</button>
+            <button class="tab-btn" data-tab="general-notifications">General ({{ general_notifications.count }})</button>
+        </div>
+        
+        <div class="notifications-content">
+            <div id="chat-notifications" class="tab-content active">
+                {% if chat_notifications.list %}
+                    {% for notification in chat_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new chat notifications</p>
+                {% endif %}
+            </div>
+            
+            <div id="general-notifications" class="tab-content">
+                {% if general_notifications.list %}
+                    {% for notification in general_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new general notifications</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-{% include 'partials/notifications_modal.html' %}
 {% endblock %}
 
 {% block extra_css %}
@@ -603,6 +645,93 @@ body.dark-mode .task-action-btn.delete:hover {
         margin: 10px;
     }
 }
+       /* Notifications Modal Styles */
+#notificationsModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.notifications-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-light);
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.notifications-content {
+    padding: 20px;
+    max-height: calc(80vh - 60px);
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.notification-item {
+    display: flex;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.notification-icon {
+    font-size: 1.5em;
+    padding-top: 2px;
+}
+
+.notification-text p {
+    margin: 0 0 5px 0;
+    font-size: 0.95em;
+}
+
+.notification-text small {
+    color: var(--text-light);
+    font-size: 0.85em;
+}
+
+.empty-notifications {
+    text-align: center;
+    color: var(--text-light);
+    padding: 20px 0;
+}
+
 </style>
 {% endblock %}
 
@@ -992,6 +1121,62 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('CSRF Token:', cookieValue); // Debug log
         return cookieValue;
     }
+
+    // Notification handling
+    const notificationTrigger = document.getElementById('notificationTrigger');
+    if (notificationTrigger) {
+        notificationTrigger.addEventListener('click', () => {
+            const modal = document.getElementById('notificationsModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        });
+        
+        document.querySelectorAll('.notifications-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                document.querySelectorAll('.notifications-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.notifications-content .tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const notificationId = item.dataset.notificationId;
+                try {
+                    const response = await fetch(`/messaging/notifications/mark-read/${notificationId}/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                    });
+                    
+                    if (response.ok) {
+                        item.remove();
+                        const countElement = document.querySelector('.notification-badge');
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent) || 0;
+                            countElement.textContent = Math.max(0, currentCount - 1);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            });
+        });
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target.id === 'newMessageModal') {
+            document.getElementById('newMessageModal').style.display = 'none';
+        }
+        if (e.target.id === 'notificationsModal') {
+            document.getElementById('notificationsModal').style.display = 'none';
+        }
+    });
+
+
 });
 </script>
 {% endblock %}

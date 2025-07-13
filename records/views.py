@@ -6,6 +6,7 @@ from .models import Record
 from tasks.models import Notification
 from django.utils import timezone
 from django.db.models import Q
+from dashboard.models import Activity
 
 # Add this to your existing view
 @login_required
@@ -62,6 +63,11 @@ def add_record(request):
             if file:
                 record_data['file'] = file
             record = Record.objects.create(**record_data)
+            Activity.objects.create(
+                user=request.user,
+                action_type='RECORD_UPLOADED',
+                description=f'Uploaded record: {record.name}'
+            )
             return redirect('records:records')
         return render(request, 'records/new_record_modal.html', {
             'record_type_choices': Record.RECORD_TYPE_CHOICES,

@@ -46,9 +46,9 @@
     function initTasksBarChart() {
         const ctx = document.getElementById('tasksBarChart')?.getContext('2d');
         if (!ctx) return;
-        
+
         if (tasksBarChart) tasksBarChart.destroy();
-        
+
         const data = getJSONData('tasks-bar-data');
         if (isValidChartData(data, 'Tasks Bar Chart')) {
             tasksBarChart = new Chart(ctx, {
@@ -73,9 +73,9 @@
     function initTaskCompletionChart() {
         const ctx = document.getElementById('taskCompletionChart')?.getContext('2d');
         if (!ctx) return;
-        
+
         if (taskCompletionChart) taskCompletionChart.destroy();
-        
+
         const data = getJSONData('task-completion-data');
         if (isValidChartData(data, 'Task Completion Chart')) {
             taskCompletionChart = new Chart(ctx, {
@@ -102,9 +102,9 @@
     function initUserActivityChart() {
         const ctx = document.getElementById('userActivityChart')?.getContext('2d');
         if (!ctx) return;
-        
+
         if (userActivityChart) userActivityChart.destroy();
-        
+
         const data = getJSONData('user-activity-data');
         if (isValidChartData(data, 'User Activity Chart')) {
             userActivityChart = new Chart(ctx, {
@@ -132,23 +132,23 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
-                title: { 
-                    display: true, 
-                    text: titleText, 
-                    color: '#333', 
-                    font: { size: 16, family: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" } 
+                title: {
+                    display: true,
+                    text: titleText,
+                    color: '#333',
+                    font: { size: 16, family: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" }
                 }
             },
             scales: {
-                y: { 
-                    beginAtZero: true, 
-                    title: { display: true, text: 'Number of Tasks' }, 
-                    ticks: { color: '#333' }, 
-                    grid: { color: '#e0e0e0' } 
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Number of Tasks' },
+                    ticks: { color: '#333' },
+                    grid: { color: '#e0e0e0' }
                 },
-                x: { 
-                    ticks: { color: '#333' }, 
-                    grid: { display: false } 
+                x: {
+                    ticks: { color: '#333' },
+                    grid: { display: false }
                 }
             }
         };
@@ -171,10 +171,67 @@
         document.getElementById('user-filter').addEventListener('change', applyFilters);
         document.querySelector('.clear-filters')?.addEventListener('click', clearFilters);
     });
+
+    // Notification handling
+    const notificationTrigger = document.getElementById('notificationTrigger');
+    if (notificationTrigger) {
+        notificationTrigger.addEventListener('click', () => {
+            const modal = document.getElementById('notificationsModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        });
+
+        document.querySelectorAll('.notifications-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                document.querySelectorAll('.notifications-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.notifications-content .tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const notificationId = item.dataset.notificationId;
+                try {
+                    const response = await fetch(`/messaging/notifications/mark-read/${notificationId}/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                    });
+
+                    if (response.ok) {
+                        item.remove();
+                        const countElement = document.querySelector('.notification-badge');
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent) || 0;
+                            countElement.textContent = Math.max(0, currentCount - 1);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            });
+        });
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target.id === 'newMessageModal') {
+            document.getElementById('newMessageModal').style.display = 'none';
+        }
+        if (e.target.id === 'notificationsModal') {
+            document.getElementById('notificationsModal').style.display = 'none';
+        }
+    });
+
 </script>
 {% endblock %}
 
 {% block content %}
+{% with is_superuser=request.user.is_superuser %}
+
 <header class="header">
     <h1 class="greeting">Reports</h1>
     <p class="subtitle">Analytics and insights for your productivity</p>
@@ -189,22 +246,27 @@
     <div class="filters-container">
         <div class="filter-group">
             <label for="date-filter">Filter by Date:</label>
-            <select id="date-filter" class="filter-select">
-                <option value="all" {% if current_filters.date == 'all' %}selected{% endif %}>All Time</option>
-                <option value="today" {% if current_filters.date == 'today' %}selected{% endif %}>Today</option>
-                <option value="week" {% if current_filters.date == 'week' %}selected{% endif %}>This Week</option>
-                <option value="month" {% if current_filters.date == 'month' %}selected{% endif %}>This Month</option>
-                <option value="year" {% if current_filters.date == 'year' %}selected{% endif %}>This Year</option>
-            </select>
+            <!-- Fix the select options by adding spaces around the == operator -->
+<select id="date-filter" class="filter-select">
+    <option value="all" {% if current_filters.date == "all" %}selected{% endif %}>All Time</option>
+    <option value="today" {% if current_filters.date == 'today' %}selected{% endif %}>Today</option>
+    <option value="week" {% if current_filters.date == 'week' %}selected{% endif %}>This Week</option>
+    <option value="month" {% if current_filters.date == 'month' %}selected{% endif %}>This Month</option>
+    <option value="year" {% if current_filters.date == 'year' %}selected{% endif %}>This Year</option>
+</select>
         </div>
+        <!-- User Filter - Only for superusers -->
         <div class="filter-group">
             <label for="user-filter">Filter by User:</label>
-            <select id="user-filter" class="filter-select">
-                <option value="all" {% if current_filters.user == 'all' %}selected{% endif %}>All Users</option>
-                {% for user in users %}
-                    <option value="{{ user.id }}" {% if current_filters.user == user.id|stringformat:"s" %}selected{% endif %}>{{ user.full_name }}</option>
-                {% endfor %}
-            </select>
+            <!-- Fix the user filter options by adding spaces around the == operator -->
+<select id="user-filter" class="filter-select" {% if not is_superuser %}disabled{% endif %}>
+    <option value="all" {% if current_filters.user == 'all' %}selected{% endif %}>All Users</option>
+    {% for user in users %}
+    <option value="{{ user.id }}" {% if current_filters.user == user.id|stringformat:"s" %}selected{% endif %}>
+        {{ user.full_name }}
+    </option>
+    {% endfor %}
+</select>
         </div>
     </div>
 
@@ -212,17 +274,17 @@
     {% if current_filters.date != 'all' or current_filters.user != 'all' %}
     <div class="active-filters">
         {% if current_filters.date != 'all' %}
-            <span class="filter-tag">Date: {{ current_filters.date|title }}</span>
+        <span class="filter-tag">Date: {{ current_filters.date|title }}</span>
         {% endif %}
         {% if current_filters.user != 'all' %}
-            <span class="filter-tag">
-                User: 
-                {% for user in users %}
-                    {% if user.id == current_filters.user|add:"0" %}
-                        {{ user.full_name }}
-                    {% endif %}
-                {% endfor %}
-            </span>
+        <span class="filter-tag">
+            User:
+            {% for user in users %}
+            {% if user.id == current_filters.user|add:"0" %}
+            {{ user.full_name }}
+            {% endif %}
+            {% endfor %}
+        </span>
         {% endif %}
         <a href="#" class="clear-filters">Clear All Filters</a>
     </div>
@@ -238,20 +300,23 @@
             <h3 class="summary-title">Missed Appointments</h3>
             <p class="summary-value">{{ summary.missed_appointments }}</p>
         </div>
+        {% if is_superuser %}
         <div class="summary-card">
             <h3 class="summary-title">New Registrations</h3>
             <p class="summary-value">{{ summary.new_registrations }}</p>
         </div>
+        {% endif %}
     </div>
 
     <!-- New Users Table -->
+    {% if is_superuser %}
     <div class="new-users-section">
         <h2 class="section-title">
-            New Users 
+            New Users
             {% if current_filters.date != 'all' %}
-                ({{ current_filters.date|title }})
+            ({{ current_filters.date|title }})
             {% else %}
-                (All Time)
+            (All Time)
             {% endif %}
         </h2>
         <table id="new-users-table" class="new-users-table">
@@ -264,475 +329,623 @@
             </thead>
             <tbody>
                 {% if new_users %}
-                    {% for user in new_users %}
-                        <tr>
-                            <td>{{ user.full_name }}</td>
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                        </tr>
-                    {% endfor %}
+                {% for user in new_users %}
+                <tr>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
                 {% else %}
-                    <tr><td colspan="3">No new users found for the selected filters</td></tr>
+                <tr>
+                    <td colspan="3">No new users found for the selected filters</td>
+                </tr>
                 {% endif %}
             </tbody>
         </table>
     </div>
+    {% endif %}
 
     <div class="section-header">
         <h2 class="section-title">Performance Dashboard</h2>
-        <<!-- In your reports.html template, update the section-actions div -->
-        <div class="section-actions">
-            <a href="?{{ request.GET.urlencode }}&export=pdf" class="btn btn-primary">
-                <i class="fas fa-file-pdf"></i> Export PDF
-            </a>
-            <a href="?{{ request.GET.urlencode }}&export=excel" class="btn btn-primary">
-                <i class="fas fa-file-excel"></i> Export Excel
-            </a>
-        </div>
+        <!-- In your reports.html template, update the section-actions div -->
+            <div class="section-actions">
+                <a href="?{{ request.GET.urlencode }}&export=pdf" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </a>
+                <a href="?{{ request.GET.urlencode }}&export=excel" class="btn btn-primary">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </a>
+            </div>
     </div>
 
     <div class="reports-grid">
-        <div class="report-card">
-            <div class="report-header">
-                <h3 class="report-title">Tasks Completed vs Missed</h3>
-            </div>
-            <div class="chart-container">
-                <canvas id="tasksBarChart"></canvas>
-            </div>
+    <!-- Tasks Completed vs Overdue -->
+    <div class="report-card">
+        <div class="report-header">
+            <h3 class="report-title">Tasks Completed vs Overdue</h3>
         </div>
-        <div class="report-card">
-            <div class="report-header">
-                <h3 class="report-title">Task Completion</h3>
-            </div>
-            <div class="chart-container">
-                <canvas id="taskCompletionChart"></canvas>
-            </div>
+        <div class="chart-container">
+            <canvas id="tasksBarChart"></canvas>
         </div>
-        <div class="report-card">
-            <div class="report-header">
-                <h3 class="report-title">User Activity</h3>
+    </div>
+    
+    <!-- Task Completion -->
+    <div class="report-card">
+        <div class="report-header">
+            <h3 class="report-title">Task Completion</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="taskCompletionChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- User Activity (only for superusers) -->
+    {% if is_superuser %}
+    <div class="report-card">
+        <div class="report-header">
+            <h3 class="report-title">User Activity</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="userActivityChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+</div>
+
+<!-- Notifications Modal -->
+<div id="notificationsModal" style="display: none;">
+    <div class="modal-content">
+        <div class="notifications-tabs">
+            <button class="tab-btn active" data-tab="chat-notifications">Chat ({{ chat_notifications.count }})</button>
+            <button class="tab-btn" data-tab="general-notifications">General ({{ general_notifications.count
+                }})</button>
+        </div>
+
+        <div class="notifications-content">
+            <div id="chat-notifications" class="tab-content active">
+                {% if chat_notifications.list %}
+                {% for notification in chat_notifications.list %}
+                <div class="notification-item" data-notification-id="{{ notification.id }}">
+                    <div class="notification-icon">💬</div>
+                    <div class="notification-text">
+                        <p>{{ notification.message }}</p>
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="empty-notifications">No new chat notifications</p>
+                {% endif %}
             </div>
-            <div class="chart-container">
-                <canvas id="userActivityChart"></canvas>
+
+            <div id="general-notifications" class="tab-content">
+                {% if general_notifications.list %}
+                {% for notification in general_notifications.list %}
+                <div class="notification-item" data-notification-id="{{ notification.id }}">
+                    <div class="notification-icon">🔔</div>
+                    <div class="notification-text">
+                        <p>{{ notification.message }}</p>
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="empty-notifications">No new general notifications</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endwith %}
 {% endblock %}
 
 {% block extra_css %}
 <style>
-:root {
-    --primary: #0047AB;
-    --primary-light: #3366CC;
-    --primary-dark: #003380;
-    --background-white: #ffffff;
-    --text: #333333;
-    --surface: #f5f7fa;
-    --border: #e0e0e0;
-    
-    /* Dark mode variables */
-    --dark-primary: #64B5F6;
-    --dark-background: #121212;
-    --dark-surface: #1e1e1e;
-    --dark-text: #e0e0e0;
-    --dark-border: #444;
-}
+    :root {
+        --primary: #0047AB;
+        --primary-light: #3366CC;
+        --primary-dark: #003380;
+        --background-white: #ffffff;
+        --text: #333333;
+        --surface: #f5f7fa;
+        --border: #e0e0e0;
 
-body.dark-mode {
-    --primary: var(--dark-primary);
-    --background-white: var(--dark-surface);
-    --text: var(--dark-text);
-    --surface: var(--dark-surface);
-    --border: var(--dark-border);
-}
-
-.reports-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.filters-container {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    min-width: 200px;
-}
-
-.filter-select {
-    padding: 10px;
-    border-radius: 8px;
-    border: 2px solid var(--primary);
-    background: var(--background-white);
-    color: var(--text);
-    font-size: 1em;
-    cursor: pointer;
-}
-
-.filter-select:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
-}
-
-body.dark-mode .filter-select {
-    background: var(--dark-surface);
-    border-color: var(--dark-primary);
-    color: var(--dark-text);
-}
-
-.active-filters {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.filter-tag {
-    background-color: var(--primary-light);
-    color: white;
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 0.95em;
-    display: inline-flex;
-    align-items: center;
-    font-weight: 500;
-}
-
-body.dark-mode .filter-tag {
-    background-color: var(--dark-primary);
-}
-
-.clear-filters {
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 600;
-    margin-left: 5px;
-    cursor: pointer;
-    padding: 6px 12px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-body.dark-mode .clear-filters {
-    color: var(--dark-primary-light);
-}
-
-.clear-filters:hover {
-    text-decoration: underline;
-    background-color: rgba(33, 150, 243, 0.1);
-}
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
-}
-
-.summary-card {
-    background: var(--background-white);
-    border-radius: 15px;
-    padding: 25px;
-    text-align: center;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid var(--border);
-}
-
-.summary-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-}
-
-body.dark-mode .summary-card {
-    background: var(--dark-surface);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-    border-color: var(--dark-border);
-}
-
-.summary-title {
-    font-size: 1.15em;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0 0 15px 0;
-}
-
-body.dark-mode .summary-title {
-    color: var(--dark-text);
-}
-
-.summary-value {
-    font-size: 2.2em;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 0;
-    line-height: 1.2;
-}
-
-body.dark-mode .summary-value {
-    color: var(--dark-primary);
-}
-
-.new-users-section {
-    margin-bottom: 40px;
-    background: var(--background-white);
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-    border: 1px solid var(--border);
-}
-
-body.dark-mode .new-users-section {
-    background: var(--dark-surface);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-    border-color: var(--dark-border);
-}
-
-.section-title {
-    font-size: 1.6em;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0 0 20px 0;
-}
-
-body.dark-mode .section-title {
-    color: var(--dark-text);
-}
-
-.new-users-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.new-users-table th, .new-users-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-}
-
-body.dark-mode .new-users-table th, 
-body.dark-mode .new-users-table td {
-    border-bottom: 1px solid var(--dark-border);
-    color: var(--dark-text);
-}
-
-.new-users-table th {
-    background-color: rgba(33, 150, 243, 0.1);
-    font-weight: 600;
-    color: var(--text);
-}
-
-body.dark-mode .new-users-table th {
-    background-color: rgba(100, 181, 246, 0.15);
-    color: var(--dark-text);
-}
-
-.new-users-table tbody tr:hover {
-    background-color: rgba(33, 150, 243, 0.05);
-}
-
-body.dark-mode .new-users-table tbody tr:hover {
-    background-color: rgba(100, 181, 246, 0.1);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.section-actions {
-    display: flex;
-    gap: 12px;
-}
-
-.btn {
-    padding: 12px 24px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 1em;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    color: white;
-    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
-}
-
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(33, 150, 243, 0.35);
-}
-
-body.dark-mode .btn-primary {
-    background: linear-gradient(135deg, var(--dark-primary), #5ba0f2);
-}
-
-.reports-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-    gap: 30px;
-    margin-bottom: 40px;
-}
-
-.report-card {
-    background: var(--background-white);
-    border-radius: 18px;
-    padding: 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid var(--border);
-}
-
-.report-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-}
-
-body.dark-mode .report-card {
-    background: var(--dark-surface);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    border-color: var(--dark-border);
-}
-
-.report-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.report-title {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0;
-}
-
-body.dark-mode .report-title {
-    color: var(--dark-text);
-}
-
-.chart-container {
-    position: relative;
-    height: 320px;
-    width: 100%;
-}
-
-.no-data {
-    text-align: center;
-    color: #777;
-    font-style: italic;
-    padding: 20px;
-}
-
-/* Responsive design */
-@media (max-width: 1100px) {
-    .reports-grid {
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        /* Dark mode variables */
+        --dark-primary: #64B5F6;
+        --dark-background: #121212;
+        --dark-surface: #1e1e1e;
+        --dark-text: #e0e0e0;
+        --dark-border: #444;
     }
-}
 
-@media (max-width: 900px) {
-    .reports-grid {
-        grid-template-columns: 1fr;
+    body.dark-mode {
+        --primary: var(--dark-primary);
+        --background-white: var(--dark-surface);
+        --text: var(--dark-text);
+        --surface: var(--dark-surface);
+        --border: var(--dark-border);
     }
-    
-    .summary-grid {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-}
 
-@media (max-width: 768px) {
-    .filters-container {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .section-actions {
-        width: 100%;
-        justify-content: flex-start;
-    }
-    
-    .filter-group {
-        width: 100%;
-    }
-    
-    .report-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
-
-@media (max-width: 480px) {
-    .summary-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .btn {
-        width: 100%;
-        padding: 14px;
-    }
-    
-    .section-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-}
-@media print {
-    body {
+    .reports-container {
+        max-width: 1200px;
+        margin: 0 auto;
         padding: 20px;
-        background: white;
-        color: black;
     }
-    
-    .header, .filters-container, .clear-filters, .section-actions {
-        display: none;
+
+    .filters-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
     }
-    
-    .report-card {
-        page-break-inside: avoid;
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 200px;
+    }
+
+    .filter-select {
+        padding: 10px;
+        border-radius: 8px;
+        border: 2px solid var(--primary);
+        background: var(--background-white);
+        color: var(--text);
+        font-size: 1em;
+        cursor: pointer;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+    }
+
+    body.dark-mode .filter-select {
+        background: var(--dark-surface);
+        border-color: var(--dark-primary);
+        color: var(--dark-text);
+    }
+
+    .active-filters {
+        display: flex;
+        gap: 10px;
         margin-bottom: 30px;
+        flex-wrap: wrap;
+        align-items: center;
     }
-    
+
+    .filter-tag {
+        background-color: var(--primary-light);
+        color: white;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.95em;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    body.dark-mode .filter-tag {
+        background-color: var(--dark-primary);
+    }
+
+    .clear-filters {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 5px;
+        cursor: pointer;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    body.dark-mode .clear-filters {
+        color: var(--dark-primary-light);
+    }
+
+    .clear-filters:hover {
+        text-decoration: underline;
+        background-color: rgba(33, 150, 243, 0.1);
+    }
+
     .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .summary-card {
+        background: var(--background-white);
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--border);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    body.dark-mode .summary-card {
+        background: var(--dark-surface);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+        border-color: var(--dark-border);
+    }
+
+    .summary-title {
+        font-size: 1.15em;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0 0 15px 0;
+    }
+
+    body.dark-mode .summary-title {
+        color: var(--dark-text);
+    }
+
+    .summary-value {
+        font-size: 2.2em;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    body.dark-mode .summary-value {
+        color: var(--dark-primary);
+    }
+
+    .new-users-section {
+        margin-bottom: 40px;
+        background: var(--background-white);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border);
+    }
+
+    body.dark-mode .new-users-section {
+        background: var(--dark-surface);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+        border-color: var(--dark-border);
+    }
+
+    .section-title {
+        font-size: 1.6em;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0 0 20px 0;
+    }
+
+    body.dark-mode .section-title {
+        color: var(--dark-text);
+    }
+
+    .new-users-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .new-users-table th,
+    .new-users-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+
+    body.dark-mode .new-users-table th,
+    body.dark-mode .new-users-table td {
+        border-bottom: 1px solid var(--dark-border);
+        color: var(--dark-text);
+    }
+
+    .new-users-table th {
+        background-color: rgba(33, 150, 243, 0.1);
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    body.dark-mode .new-users-table th {
+        background-color: rgba(100, 181, 246, 0.15);
+        color: var(--dark-text);
+    }
+
+    .new-users-table tbody tr:hover {
+        background-color: rgba(33, 150, 243, 0.05);
+    }
+
+    body.dark-mode .new-users-table tbody tr:hover {
+        background-color: rgba(100, 181, 246, 0.1);
+    }
+
+    .section-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
     }
-    
-    .summary-card {
+
+    .section-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(33, 150, 243, 0.35);
+    }
+
+    body.dark-mode .btn-primary {
+        background: linear-gradient(135deg, var(--dark-primary), #5ba0f2);
+    }
+
+    .reports-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .report-card {
+        background: var(--background-white);
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--border);
+    }
+
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    body.dark-mode .report-card {
+        background: var(--dark-surface);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-color: var(--dark-border);
+    }
+
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .report-title {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0;
+    }
+
+    body.dark-mode .report-title {
+        color: var(--dark-text);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 320px;
+        width: 100%;
+    }
+
+    .no-data {
+        text-align: center;
+        color: #777;
+        font-style: italic;
+        padding: 20px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 1100px) {
+        .reports-grid {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .filters-container {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .section-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .report-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+        }
+
+        .section-actions {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+
+    @media print {
+        body {
+            padding: 20px;
+            background: white;
+            color: black;
+        }
+
+        .header,
+        .filters-container,
+        .clear-filters,
+        .section-actions {
+            display: none;
+        }
+
+        .report-card {
+            page-break-inside: avoid;
+            margin-bottom: 30px;
+        }
+
+        .summary-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            flex: 1;
+            margin: 0 10px;
+        }
+    }
+
+    /* Notifications Modal Styles */
+    #notificationsModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .notifications-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .tab-btn {
         flex: 1;
-        margin: 0 10px;
+        padding: 15px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text-light);
+        border-bottom: 3px solid transparent;
     }
-}
+
+    .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    .notifications-content {
+        padding: 20px;
+        max-height: calc(80vh - 60px);
+        overflow-y: auto;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .notification-item {
+        display: flex;
+        gap: 15px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-light);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    .notification-icon {
+        font-size: 1.5em;
+        padding-top: 2px;
+    }
+
+    .notification-text p {
+        margin: 0 0 5px 0;
+        font-size: 0.95em;
+    }
+
+    .notification-text small {
+        color: var(--text-light);
+        font-size: 0.85em;
+    }
+
+    .empty-notifications {
+        text-align: center;
+        color: var(--text-light);
+        padding: 20px 0;
+    }
 </style>
 {% endblock %}

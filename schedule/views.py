@@ -8,6 +8,7 @@ from tasks.models import Notification
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db import models
+from dashboard.models import Activity
 
 class ScheduleView(LoginRequiredMixin, APIView):
     login_url = '/accounts/login/'
@@ -64,6 +65,11 @@ class EventListView(APIView):
                 meeting_platform=data.get('meeting_platform', ''),
                 meeting_link=data.get('meeting_link', ''),
                 created_by=request.user
+            )
+            Activity.objects.create(
+                user=request.user,
+                action_type='MEETING_SCHEDULED',
+                description=f'Scheduled meeting: {event.title}'
             )
             participant_emails = data.get('participants', [])
             participants = User.objects.filter(email__in=participant_emails, is_active=True)

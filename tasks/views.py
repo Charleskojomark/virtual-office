@@ -8,6 +8,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 import json
 from django.db.models import Q
+from dashboard.models import Activity
 
 class MarkAllReadView(LoginRequiredMixin, View):
     def post(self, request):
@@ -36,6 +37,26 @@ def tasks(request):
     }
     return render(request, 'tasks/tasks.html', context)
 
+
+@login_required
+def bulk_complete_tasks(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            task_ids = data.get('task_ids', [])
+            tasks = Task.objects.filter(
+                Q(id__in=task_ids) & (Q(user=request.user) | Q(assigned_to=request.user))
+            ).distinct()
+
+            count = tasks.count()
+            tasks.update(status='Completed')
+            return JsonResponse({'status': 'success', 'message': f'{count} tasks marked as complete'})
+        except (ValueError, KeyError) as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
 @login_required
 def task_create(request):
     if request.method == 'POST':
@@ -49,6 +70,11 @@ def task_create(request):
                 status=data['status'],
                 priority=data.get('priority', 'Medium'),
                 user=request.user
+            )
+            Activity.objects.create(
+                user=request.user,
+                action_type='TASK_CREATED',
+                description=f'Created task: {task.title}'
             )
             if assigned_to_ids:
                 assigned_users = User.objects.filter(id__in=assigned_to_ids)
@@ -142,24 +168,6 @@ def bulk_delete_tasks(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-@login_required
-def bulk_complete_tasks(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            task_ids = data.get('task_ids', [])
-            tasks = Task.objects.filter(
-                Q(id__in=task_ids) & (Q(user=request.user) | Q(assigned_to=request.user))
-            ).distinct()
-
-            count = tasks.count()
-            tasks.update(status='Completed')
-            return JsonResponse({'status': 'success', 'message': f'{count} tasks marked as complete'})
-        except (ValueError, KeyError) as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @login_required
 def task_updates(request):
@@ -171,6 +179,7 @@ def task_updates(request):
         completed_tasks = tasks.filter(status='Completed').count()
         task_completion_percentage = (completed_tasks / task_count * 100) if task_count > 0 else 0
         remaining_tasks = task_count - completed_tasks
+        
         return JsonResponse({
             'status': 'success',
             'tasks': {

@@ -6,9 +6,22 @@
 {% block content %}
 <header class="header">
     <h1 class="greeting">
-        {% if now.hour < 12 %}Good morning{% elif now.hour < 17 %}Good afternoon{% else %}Good evening{% endif %}, {{ user.get_full_name }}
+        {% if now.hour < 12 %}
+            Good morning
+        {% elif now.hour < 17 %}
+            Good afternoon
+        {% else %}
+            Good evening
+        {% endif %},
+        {% if user.first_name or user.last_name %}
+            {{ user.get_full_name }}
+        {% else %}
+            {{ user.username|title }}
+        {% endif %}
     </h1>
+
     <p class="subtitle">Welcome to your team workspace and dashboard</p>
+    
     <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
         <span class="notification-icon">🔔</span>
         <span class="notification-badge">{{ notifications.count }}</span>
@@ -130,7 +143,49 @@
         </table>
     </div>
 </div>
-
+<!-- Notifications Modal -->
+<div id="notificationsModal" style="display: none;">
+    <div class="modal-content">
+        <div class="notifications-tabs">
+            <button class="tab-btn active" data-tab="chat-notifications">Chat ({{ chat_notifications.count }})</button>
+            <button class="tab-btn" data-tab="general-notifications">General ({{ general_notifications.count }})</button>
+        </div>
+        
+        <div class="notifications-content">
+            <div id="chat-notifications" class="tab-content active">
+                {% if chat_notifications.list %}
+                    {% for notification in chat_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">💬</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new chat notifications</p>
+                {% endif %}
+            </div>
+            
+            <div id="general-notifications" class="tab-content">
+                {% if general_notifications.list %}
+                    {% for notification in general_notifications.list %}
+                    <div class="notification-item" data-notification-id="{{ notification.id }}">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-text">
+                            <p>{{ notification.message }}</p>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-notifications">No new general notifications</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% block extra_js %}
 {{ block.super }}
@@ -224,7 +279,7 @@
     .toast.show {
         opacity: 1;
     }
-    /* Notifications Modal Styles */
+       /* Notifications Modal Styles */
 #notificationsModal {
     position: fixed;
     top: 0;
@@ -430,6 +485,57 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.style.display = 'none';
             });
+        }
+    });
+    // Notification handling
+    const notificationTrigger = document.getElementById('notificationTrigger');
+    if (notificationTrigger) {
+        notificationTrigger.addEventListener('click', () => {
+            const modal = document.getElementById('notificationsModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        });
+        
+        document.querySelectorAll('.notifications-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                document.querySelectorAll('.notifications-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.notifications-content .tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const notificationId = item.dataset.notificationId;
+                try {
+                    const response = await fetch(`/messaging/notifications/mark-read/${notificationId}/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                    });
+                    
+                    if (response.ok) {
+                        item.remove();
+                        const countElement = document.querySelector('.notification-badge');
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent) || 0;
+                            countElement.textContent = Math.max(0, currentCount - 1);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error marking notification as read:', error);
+                }
+            });
+        });
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        
+        if (e.target.id === 'notificationsModal') {
+            document.getElementById('notificationsModal').style.display = 'none';
         }
     });
 });

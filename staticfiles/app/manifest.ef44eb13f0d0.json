@@ -1,0 +1,23 @@
+{
+  "name": "Virtual Office",
+  "short_name": "VO",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0047AB",
+  "theme_color": "#0047AB",
+  "description": "Your Professional Workspace",
+  "icons": [
+    {
+      "src": "{% static 'icons/icon-192x192.png' %}",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "{% static 'icons/icon-512x512.png' %}",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "orientation": "portrait-primary"
+}

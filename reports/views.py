@@ -19,10 +19,14 @@ from django.http import HttpResponse
 
 
 def reports_view(request):
+    # Get filter parameters
     date_filter = request.GET.get('date-filter', 'all')
     user_filter = request.GET.get('user-filter', 'all')
     today = timezone.now().date()
-
+    
+    # Check if user is superuser
+    is_superuser = request.user.is_superuser
+    
     # Initialize date ranges
     start_date, end_date = None, None
     if date_filter == 'today':
@@ -33,22 +37,31 @@ def reports_view(request):
         end_date = start_date + timedelta(days=7)
     elif date_filter == 'month':
         start_date = today.replace(day=1)
-        next_month = today.replace(day=28) + timedelta(days=4)  # Safely get next month
+        next_month = today.replace(day=28) + timedelta(days=4)
         end_date = next_month.replace(day=1)
     elif date_filter == 'year':
         start_date = today.replace(month=1, day=1)
         end_date = start_date.replace(year=start_date.year+1, month=1, day=1)
 
-    # Base querysets
-    tasks = Task.objects.all()
-    users = User.objects.all()
+    # Base querysets with permissions
+    if is_superuser:
+        tasks = Task.objects.all()
+        users = User.objects.all()
+    else:
+        # Regular users can only see their own tasks
+        tasks = Task.objects.filter(
+            Q(user=request.user) | Q(assigned_to=request.user)
+        ).distinct()
+        users = User.objects.filter(id=request.user.id)
+        # Force user filter to current user
+        user_filter = str(request.user.id)
 
     # Apply date filter to tasks
     if date_filter != 'all' and start_date and end_date:
         tasks = tasks.filter(due_date__gte=start_date, due_date__lt=end_date)
 
-    # Apply user filter to tasks
-    if user_filter != 'all':
+    # Apply user filter to tasks (only for superusers)
+    if is_superuser and user_filter != 'all':
         try:
             user_filter_id = int(user_filter)
             tasks = tasks.filter(
@@ -65,32 +78,39 @@ def reports_view(request):
         status__in=['Pending', 'In Progress']
     ).count()
     
-    # Apply date filter to new users
-    if date_filter != 'all' and start_date and end_date:
-        new_users_queryset = User.objects.filter(
-            date_joined__gte=start_date,
-            date_joined__lt=end_date
-        )
+    # New registrations - only for superusers
+    new_registrations_count = 0
+    if is_superuser:
+        if date_filter != 'all' and start_date and end_date:
+            new_users_queryset = User.objects.filter(
+                date_joined__gte=start_date,
+                date_joined__lt=end_date
+            )
+        else:
+            new_users_queryset = User.objects.all()
+        new_registrations_count = new_users_queryset.count()
     else:
-        new_users_queryset = User.objects.all()
+        new_users_queryset = User.objects.none()
 
     # Summary data
     summary = {
         'completed_tasks': completed_tasks_count,
         'missed_appointments': overdue_tasks_count,
-        'new_registrations': new_users_queryset.count(),
+        'new_registrations': new_registrations_count,
     }
 
-    # New users data
-    new_users_data = [
-        {
-            'id': user.id,
-            'username': user.username,
-            'full_name': f"{user.first_name} {user.last_name}".strip() or user.username,
-            'date_joined': user.date_joined
-        }
-        for user in new_users_queryset.order_by('-date_joined')[:10]  # Limit to 10
-    ]
+    # New users data - only for superusers
+    new_users_data = []
+    if is_superuser:
+        new_users_data = [
+            {
+                'id': user.id,
+                'username': user.username,
+                'full_name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                'date_joined': user.date_joined
+            }
+            for user in new_users_queryset.order_by('-date_joined')[:10]  # Limit to 10
+        ]
 
     # Tasks Completed vs Overdue
     tasks_bar_data = {
@@ -100,7 +120,7 @@ def reports_view(request):
 
     # Monthly Task Completion
     task_completion = tasks.filter(status='Completed').annotate(
-        month=TruncMonth('due_date')  # Use due_date instead of created_at
+        month=TruncMonth('due_date')
     ).values('month').annotate(count=Count('id')).order_by('month')
     
     task_completion_data = {
@@ -108,33 +128,36 @@ def reports_view(request):
         'data': [item['count'] for item in task_completion],
     }
 
-    # User Activity
-    user_activity = defaultdict(int)
-    for task in tasks:
-        # Count tasks created by user
-        if task.user:
-            user_activity[task.user.id] += 1
-        # Count tasks assigned to user
-        for assigned_user in task.assigned_to.all():
-            user_activity[assigned_user.id] += 1
-    
-    # Get user objects
-    user_objects = {user.id: user for user in users}
-    
-    # Prepare labels and data
-    user_labels, user_data = [], []
-    for user_id, count in user_activity.items():
-        if user_id in user_objects:
-            user = user_objects[user_id]
-            user_labels.append(f"{user.first_name} {user.last_name}".strip() or user.username)
-            user_data.append(count)
-    
-    user_activity_data = {
-        'labels': user_labels,
-        'data': user_data,
-    }
+    # User Activity - only for superusers
+    user_activity_data = {'labels': [], 'data': []}
+    if is_superuser:
+        user_activity = defaultdict(int)
+        for task in tasks:
+            # Count tasks created by user
+            if task.user:
+                user_activity[task.user.id] += 1
+            # Count tasks assigned to user
+            for assigned_user in task.assigned_to.all():
+                user_activity[assigned_user.id] += 1
+        
+        # Get user objects
+        user_objects = {user.id: user for user in users}
+        
+        # Prepare labels and data
+        user_labels, user_data = [], []
+        for user_id, count in user_activity.items():
+            if user_id in user_objects:
+                user = user_objects[user_id]
+                user_labels.append(f"{user.first_name} {user.last_name}".strip() or user.username)
+                user_data.append(count)
+        
+        user_activity_data = {
+            'labels': user_labels,
+            'data': user_data,
+        }
 
     context = {
+        'is_superuser': is_superuser,
         'notifications': Notification.objects.filter(user=request.user, is_read=False),
         'users': [
             {
@@ -157,14 +180,14 @@ def reports_view(request):
     
     export_format = request.GET.get('export')
     if export_format in ['pdf', 'excel']:
-        context['export_mode'] = True  # Add this to context to adjust template if needed
-        
+        context['export_mode'] = True
         if export_format == 'pdf':
             return generate_pdf(request, context)
         elif export_format == 'excel':
             return generate_excel(request, context)
 
     return render(request, 'reports/reports.html', context)
+
 # Keep your existing helper functions
 def calculate_monthly_completion_manual(completed_tasks):
     monthly_counts = defaultdict(int)
@@ -437,36 +460,81 @@ def generate_excel(request, context):
     ws = wb.active
     ws.title = "Reports Summary"
     
+    # Add header with date range info
+    ws.append(["Task Productivity Report"])
+    if context['current_filters']['date'] != 'all':
+        ws.append([f"Date Filter: {context['current_filters']['date'].title()}"])
+    if context['current_filters']['user'] != 'all' and context['is_superuser']:
+        user_id = int(context['current_filters']['user'])
+        user_name = next((u['full_name'] for u in context['users'] if u['id'] == user_id), "Unknown User")
+        ws.append([f"User Filter: {user_name}"])
+    ws.append(["Generated at", timezone.now().strftime("%Y-%m-%d %H:%M")])
+    ws.append(["Generated by", request.user.get_full_name() or request.user.username])
+    ws.append([])
+    
     # Add summary data
     ws.append(["Report Summary"])
     ws.append(["Completed Tasks", context['summary']['completed_tasks']])
     ws.append(["Missed Appointments", context['summary']['missed_appointments']])
-    ws.append(["New Registrations", context['summary']['new_registrations']])
+    
+    # Only include new registrations for superusers
+    if context['is_superuser']:
+        ws.append(["New Registrations", context['summary']['new_registrations']])
+    
     ws.append([])
     
     # Add tasks data
-    ws.append(["Tasks Completed vs Overdue"])
+    ws.append(["Tasks Overview"])
     ws.append(["Completed", context['tasks_bar_data']['data'][0]])
     ws.append(["Overdue", context['tasks_bar_data']['data'][1]])
     ws.append([])
     
     # Add monthly completion data
-    ws.append(["Monthly Task Completion"])
-    for label, data in zip(context['task_completion_data']['labels'], context['task_completion_data']['data']):
-        ws.append([label, data])
-    ws.append([])
+    if context['task_completion_data']['labels']:
+        ws.append(["Monthly Task Completion"])
+        for label, data in zip(context['task_completion_data']['labels'], context['task_completion_data']['data']):
+            ws.append([label, data])
+        ws.append([])
+    else:
+        ws.append(["Monthly Task Completion: No data available"])
+        ws.append([])
     
-    # Add user activity data
-    ws.append(["User Activity"])
-    for label, data in zip(context['user_activity_data']['labels'], context['user_activity_data']['data']):
-        ws.append([label, data])
+    # Add user activity data only for superusers
+    if context['is_superuser'] and context['user_activity_data']['labels']:
+        ws.append(["User Activity"])
+        for label, data in zip(context['user_activity_data']['labels'], context['user_activity_data']['data']):
+            ws.append([label, data])
+        ws.append([])
     
-    # Add new users data
-    ws.append([])
-    ws.append(["New Users"])
-    ws.append(["Name", "Username", "Date Joined"])
-    for user in context['new_users']:
-        ws.append([user['full_name'], user['username'], user['date_joined'].strftime('%Y-%m-%d')])
+    # Add new users data only for superusers
+    if context['is_superuser'] and context['new_users']:
+        ws.append(["New Users"])
+        ws.append(["Name", "Username", "Date Joined"])
+        for user in context['new_users']:
+            ws.append([user['full_name'], user['username'], user['date_joined'].strftime('%Y-%m-%d')])
+    
+    # Apply formatting
+    for col in ['A', 'B', 'C']:
+        ws.column_dimensions[col].width = 25
+    
+    # Add header styling
+    header_fill = openpyxl.styles.PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    header_font = openpyxl.styles.Font(bold=True, color="FFFFFF")
+    
+    for row in ws.iter_rows(min_row=1, max_row=1):
+        for cell in row:
+            cell.fill = header_fill
+            cell.font = header_font
+    
+    # Add summary header styling
+    summary_headers = [5, 9, 13, 17]  # Row numbers where section headers start
+    section_header_fill = openpyxl.styles.PatternFill(start_color="DCE6F1", end_color="DCE6F1", fill_type="solid")
+    
+    for row_num in summary_headers:
+        if row_num <= ws.max_row:
+            for cell in ws[row_num]:
+                cell.fill = section_header_fill
+                cell.font = openpyxl.styles.Font(bold=True)
     
     wb.save(response)
     return response

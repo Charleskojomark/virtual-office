@@ -8,21 +8,61 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'icons/favicon.png' %}">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{% static 'app/manifest.json' %}">
+
+    <!-- iOS PWA Support -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Virtual Office">
+    <link rel="apple-touch-icon" href="{% static 'icons/icon-192x192.png' %}">
+
+    <!-- Android Theme Color -->
+    <meta name="theme-color" content="#0047AB">
+
+    <!-- Windows PWA Support -->
+    <meta name="msapplication-TileImage" content="{% static 'icons/icon-192x192.png' %}">
+    <meta name="msapplication-TileColor" content="#0047AB">
+    <meta name="msapplication-config" content="none">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    {% include 'alerts.html' %}
-
+    <form id="logoutForm" action="{% url 'auth:logout' %}" method="post" style="display: none;">
+    {% csrf_token %}
+    </form>
     <div class="app-container">
         {% if user.is_authenticated %}
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">📊 Virtual Office</div>
                 <div class="user-info">
-                    <div class="avatar">{{ user.first_name.0 }}{{ user.last_name.0 }}</div>
+                    {% if user.profile.profile_picture %}
+                    <div class="avatar">
+                        <img src="{{ user.profile.profile_picture.url }}" style="height: 40px; width: 40px; border-radius: 50%;" alt="Profile Picture" class="avatar-img">
+                    </div>
+                    {% else %}
+                    <div class="avatar">
+                        {% if user.first_name and user.last_name %}
+                            {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                        {% else %}
+                            {{ user.username|title|slice:":2" }}
+                        {% endif %}
+
+                    </div>
+                    {% endif %}
+
                     <div>
                         <div style="font-weight: 600;">{{ user.get_full_name }}</div>
-                        <div style="font-size: 0.8em; opacity: 0.7;">{{ user.profile.role|default:"User" }}</div>
+                        <div style="font-size: 0.8em; opacity: 0.7;">
+                            {% if request.user.is_superuser %}
+                                Admin
+                            {% else %}
+                                {{ user.profile.role|default:"User" }}
+                            {% endif %}
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -47,13 +87,21 @@
                     <div class="nav-icon">📊</div>
                     <div class="nav-text">Reports</div>
                 </div>
-                <div class="nav-item {% if 'records' in request.path %}active{% endif %}" role="button" tabindex="0" data-url="{% url 'records:records' %}">
-                    <div class="nav-icon">📋</div>
-                    <div class="nav-text">Records</div>
-                </div>
+                {% if request.user.is_superuser %}
+                    <div class="nav-item {% if 'records' in request.path %}active{% endif %}" role="button" tabindex="0" data-url="{% url 'records:records' %}">
+                        <div class="nav-icon">📋</div>
+                        <div class="nav-text">Records</div>
+                    </div>
+                {% endif %}
+
                 <div class="nav-item {% if 'settings' in request.path %}active{% endif %}" role="button" tabindex="0" data-url="{% url 'settings:settings' %}">
                     <div class="nav-icon">⚙️</div>
                     <div class="nav-text">Settings</div>
+                </div>
+                
+                <div class="nav-item" role="button" tabindex="0" onclick="document.getElementById('logoutForm').submit()">
+                    <div class="nav-icon">➡️</div>
+                    <div class="nav-text">Logout</div>
                 </div>
             </nav>
         </aside>
@@ -69,10 +117,10 @@
         <span></span>
     </div>
     <div class="logo">📊 Virtual Office</div>
-    <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
+    <!-- <div class="notification" role="button" tabindex="0" aria-label="Notifications" id="notificationTrigger">
         <span class="notification-icon">🔔</span>
         <span class="notification-badge" id="notification-count">{{ chat_notifications.count|add:general_notifications.count|default:0 }}</span>
-    </div>
+    </div> -->
 </div>
             {% endif %}
             <div class="container">
@@ -155,52 +203,7 @@
             }, 3000);
         }
 
-        // Fetch task updates for sidebar badge
-        // function fetchTaskUpdates() {
-        //     console.log('Fetching task updates from /dashboard/task_updates/'); // Debug: Confirm fetch
-        //     const taskCountEl = document.getElementById('task-count');
-        //     if (!taskCountEl) {
-        //         console.error('Task count element not found');
-        //         showToast('Error: Task count element not found', 'error');
-        //         return;
-        //     }
-
-        //     fetch('/dashboard/task_updates/', {
-        //         method: 'GET',
-        //         headers: {
-        //             'X-CSRFToken': getCookie('csrftoken'),
-        //             'Accept': 'application/json'
-        //         }
-        //     })
-        //     .then(response => {
-        //         console.log('Response status:', response.status); // Debug: Log response status
-        //         if (!response.ok) {
-        //             throw new Error(`HTTP error! Status: ${response.status}`);
-        //         }
-        //         return response.json();
-        //     })
-        //     .then(data => {
-        //         console.log('Task updates response:', data); // Debug: Log response data
-        //         if (data.status === 'success') {
-        //             const newCount = data.tasks.count;
-        //             if (taskCountEl.textContent != newCount) {
-        //                 taskCountEl.textContent = newCount;
-        //                 showToast('Task count updated', 'success');
-        //             }
-        //         } else {
-        //             showToast('Error fetching task count: ' + (data.message || 'Unknown error'), 'error');
-        //         }
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching task updates:', error); // Debug: Log error
-        //         showToast('Error fetching task count: ' + error.message, 'error');
-        //     });
-        // }
-
-        // // Initial fetch and set interval for updates
-        // console.log('Initializing task updates'); // Debug: Confirm initialization
-        // fetchTaskUpdates();
-        // setInterval(fetchTaskUpdates, 30000);
+        
 
         // Sidebar navigation
         document.querySelectorAll('.nav-item[data-url]').forEach(item => {
@@ -237,5 +240,7 @@
     });
     </script>
     {% endblock %}
+    <!-- PWA Registration -->
+    <script src="{% static 'js/pwa.js' %}"></script>
 </body>
 </html>

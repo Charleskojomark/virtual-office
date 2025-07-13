@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'messaging.middleware.LastSeenMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -182,3 +183,34 @@ LOGGING = {
         },
     },
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+# EMAIL_HOST_USER = 'demo@gmail.com'
+# EMAIL_HOST_PASSWORD = 'bfex lnmg aegl dnhr'
+DEFAULT_FROM_EMAIL = 'YourVirtualOffice@gmail.com'
+
+# PWA Settings
+PWA_APP_NAME = 'Virtual Office'
+PWA_APP_DESCRIPTION = "Your Professional Workspace"
+PWA_APP_THEME_COLOR = '#0047AB'
+PWA_APP_BACKGROUND_COLOR = '#F5F7FA'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'portrait'
+PWA_APP_START_URL = '/'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/icons/icon-192x192.png',
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/icons/icon-512x512.png',
+        'sizes': '512x512'
+    }
+]
+PWA_APP_DIR = 'ltr'
+PWA_APP_LANG = 'en-US'

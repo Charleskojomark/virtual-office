@@ -35,7 +35,7 @@ def messaging(request):
     messages = []
 
     # Check if we're starting a new conversation
-    if recipient_id and not conversation_id:
+    if recipient_id:
         try:
             recipient = User.objects.get(id=recipient_id)
             # Find existing conversation or create new one
@@ -55,11 +55,12 @@ def messaging(request):
             active_conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
             messages = active_conversation.messages.order_by('timestamp')
             
-            # Mark chat notifications as read (those containing conversation ID in message)
+            # Mark chat notifications as read using notification_type and related_id
             Notification.objects.filter(
                 user=request.user,
                 is_read=False,
-                message__contains=f"conversation:{conversation_id}"
+                notification_type='chat',
+                related_id=conversation_id
             ).update(is_read=True)
             
             # Mark messages as read
@@ -82,52 +83,67 @@ def messaging(request):
         unread_count = conv.messages.filter(read=False)\
                                    .exclude(sender=request.user)\
                                    .count()
-        
+        profile_picture = None
+        if hasattr(other_participant, 'profile') and other_participant.profile.profile_picture:
+            profile_picture = other_participant.profile.profile_picture.url
         conversation_data.append({
-            'id': conv.id,
-            'participant_name': other_participant.username,
-            'participant_avatar': getattr(other_participant, 'avatar', '/static/default-avatar.png'),
-            'participant_initials': other_participant.username[:2].upper(),
-            'last_message_preview': last_message.text[:50] + '...' if last_message else '',
-            'last_message_time': last_message.timestamp if last_message else conv.created_at,
-            'unread_count': unread_count,
-        })
+    'id': conv.id,
+    'participant_id': other_participant.id,
+    'participant_name': other_participant.username,
+    'participant_avatar': profile_picture or '/static/default-avatar.png',
+    'participant_initials': other_participant.username[:2].upper(),
+    'last_message_preview': last_message.text[:50] + '...' if last_message else '',
+    'last_message_time': last_message.timestamp if last_message else conv.created_at,
+    'unread_count': unread_count,
+    'status': (
+        'Online' if (
+            getattr(other_participant, 'profile', None) and 
+            other_participant.profile.show_online_status and
+            (other_participant.profile.is_online or 
+             (timezone.now() - other_participant.profile.last_seen).total_seconds() < 300)
+        ) else 'Offline'
+    )
+})
 
     # Prepare active chat data
     active_chat_data = None
     if active_conversation:
         other_participant = active_conversation.participants.exclude(id=request.user.id).first()
         if other_participant:
+            profile_picture = None
+            if hasattr(other_participant, 'profile') and other_participant.profile.profile_picture:
+                profile_picture = other_participant.profile.profile_picture.url
+                
             active_chat_data = {
-    'id': active_conversation.id,
-    'participant_id': other_participant.id,
-    'participant_name': other_participant.username,
-    'participant_avatar': getattr(other_participant, 'avatar', '/static/default-avatar.png'),
-    'participant_initials': other_participant.username[:2].upper(),
-    'status': 'Online' if other_participant.last_login and 
-              (timezone.now() - other_participant.last_login).total_seconds() < 300 else 'Offline',
-}
+                'id': active_conversation.id,
+                'participant_id': other_participant.id,
+                'participant_name': other_participant.username,
+                'participant_avatar': profile_picture or '/static/default-avatar.png',
+                'participant_initials': other_participant.username[:2].upper(),
+                'status': (
+                    'Online' if (
+                        getattr(other_participant, 'profile', None) and 
+                        other_participant.profile.show_online_status and
+                        (other_participant.profile.is_online or 
+                        (timezone.now() - other_participant.profile.last_seen).total_seconds() < 300)
+                    ) else 'Offline'
+                )
+            }
 
     # Paginate messages
     paginator = Paginator(messages, 20)
     page_number = request.GET.get('page', 1)
     messages_page = paginator.get_page(page_number)
 
-    # Get all unread notifications
+    # Get all unread notifications and separate by type
     all_notifications = Notification.objects.filter(
         user=request.user,
         is_read=False
     ).order_by('-created_at')
 
-    # Separate chat and general notifications
-    chat_notifications = []
-    general_notifications = []
-    
-    for notification in all_notifications:
-        if "conversation:" in notification.message:
-            chat_notifications.append(notification)
-        else:
-            general_notifications.append(notification)
+    # Efficiently separate notifications using the type field
+    chat_notifications = all_notifications.filter(notification_type='chat')
+    general_notifications = all_notifications.exclude(notification_type='chat')
 
     # Prepare messages data for template
     messages_data = []
@@ -136,13 +152,16 @@ def messaging(request):
             'sender': {
                 'id': message.sender.id,
                 'name': message.sender.username,
-                'avatar': getattr(message.sender, 'avatar', '/static/default-avatar.png'),
+                'avatar': getattr(message.sender.profile, 'profile_picture', '/static/default-avatar.png'),
                 'initials': message.sender.username[:2].upper(),
             },
             'content': message.text,
             'timestamp': message.timestamp,
             'status': '✓✓' if message.read else '✓',
-            'attachment': message.attachment,
+            'attachment': {
+                'url': message.attachment.url if message.attachment else None,
+                'name': message.attachment.name if message.attachment else None
+            },
             'is_sent': message.sender.id == request.user.id
         })
 
@@ -151,15 +170,15 @@ def messaging(request):
         'active_chat': active_chat_data,
         'messages': messages_data,
         'chat_notifications': {
-            'count': len(chat_notifications),
+            'count': chat_notifications.count(),
             'list': chat_notifications[:5]  # Only show 5 most recent
         },
         'general_notifications': {
-            'count': len(general_notifications),
+            'count': general_notifications.count(),
             'list': general_notifications[:5]  # Only show 5 most recent
         },
         'page_obj': messages_page,
-        'all_users': User.objects.exclude(id=request.user.id)
+        'all_users': User.objects.exclude(id=request.user.id).select_related('profile')
     }
 
     return render(request, 'messaging/messaging.html', context)
@@ -214,6 +233,8 @@ def send_message(request):
 
     try:
         conversation_id = form.cleaned_data.get('conversation_id')
+        is_new_conversation = False
+        
         if conversation_id:
             conversation = Conversation.objects.get(
                 id=conversation_id,
@@ -231,6 +252,7 @@ def send_message(request):
             if not conversation:
                 conversation = Conversation.objects.create()
                 conversation.participants.add(request.user, recipient)
+                is_new_conversation = True
                 logger.info(f"Created new conversation: {conversation.id}")
     except Conversation.DoesNotExist:
         logger.error(f"Conversation not found: ID {conversation_id}")
@@ -256,6 +278,44 @@ def send_message(request):
         conversation.updated_at = timezone.now()
         conversation.save()
         
+        # Get recipient profile data for the response
+        recipient_profile = getattr(recipient, 'profile', None)
+        recipient_avatar = (
+            recipient_profile.profile_picture.url 
+            if recipient_profile and recipient_profile.profile_picture 
+            else '/static/default-avatar.png'
+        )
+        
+        # Prepare response data
+        response_data = {
+            'status': 'success',
+            'message_id': message.id,
+            'conversation_id': conversation.id,
+            'timestamp': message.timestamp.isoformat(),
+            'is_new_conversation': is_new_conversation,
+        }
+        
+        # Add conversation data if this is a new conversation
+        if is_new_conversation:
+            response_data['conversation_data'] = {
+                'id': conversation.id,
+                'participant_id': recipient.id,
+                'participant_name': recipient.username,
+                'participant_avatar': recipient_avatar,
+                'participant_initials': recipient.username[:2].upper(),
+                'last_message_preview': message.text[:50] + ('...' if len(message.text) > 50 else ''),
+                'last_message_time': message.timestamp,
+                'unread_count': 0,
+                'status': (
+                    'Online' if (
+                        recipient_profile and 
+                        (recipient_profile.is_online or 
+                        (timezone.now() - recipient_profile.last_seen).total_seconds() < 300)
+                    ) else 'Offline'
+                )
+            }
+
+        # Send WebSocket message
         try:
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
@@ -283,21 +343,16 @@ def send_message(request):
         except Exception as e:
             logger.error(f"WebSocket error: {str(e)}")
 
-        # Create notification - use only fields that exist in your model
         Notification.objects.create(
             user=recipient,
-            message=f"New message from {request.user.username} in conversation:{conversation.id}",
-            related_url=f"/messaging/?chat={conversation.id}"
-            # Remove notification_type and related_id if they don't exist in your model
+            message=f"New message from {request.user.username}",
+            notification_type='chat',
+            related_url=f"/messaging/?chat={conversation.id}",
+            related_id=conversation.id  # Store conversation ID for easy reference
         )
 
         logger.info(f"Message successfully sent: ID {message.id}")
-        return JsonResponse({
-            'status': 'success',
-            'message_id': message.id,
-            'conversation_id': conversation.id,
-            'timestamp': message.timestamp.isoformat()
-        })
+        return JsonResponse(response_data)
     except Exception as e:
         logger.error(f"Error creating message: {str(e)}")
         return JsonResponse({
@@ -352,14 +407,17 @@ def mark_notification_read(request, notification_id):
         notification.is_read = True
         notification.save()
         
-        # Get updated counts
-        all_notifications = Notification.objects.filter(
+        # Get updated counts using the type field
+        chat_count = Notification.objects.filter(
+            user=request.user,
+            is_read=False,
+            notification_type='chat'
+        ).count()
+        
+        general_count = Notification.objects.filter(
             user=request.user,
             is_read=False
-        )
-        
-        chat_count = sum(1 for n in all_notifications if "conversation:" in n.message)
-        general_count = sum(1 for n in all_notifications if "conversation:" not in n.message)
+        ).exclude(notification_type='chat').count()
         
         return JsonResponse({
             'status': 'success',
@@ -379,6 +437,20 @@ def mark_all_notifications_read(request):
 @login_required
 def get_notifications_count(request):
     if request.method == 'GET':
-        unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
-        return JsonResponse({'unread_count': unread_count})
+        chat_count = Notification.objects.filter(
+            user=request.user,
+            is_read=False,
+            notification_type='chat'
+        ).count()
+        
+        general_count = Notification.objects.filter(
+            user=request.user,
+            is_read=False
+        ).exclude(notification_type='chat').count()
+        
+        return JsonResponse({
+            'chat_count': chat_count,
+            'general_count': general_count,
+            'total_count': chat_count + general_count
+        })
     return JsonResponse({'status': 'error'}, status=400)

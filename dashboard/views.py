@@ -44,7 +44,9 @@ def dashboard(request):
         unread_messages = 0
 
     # Fetch recent activities
-    activities = Activity.objects.filter(user=request.user).order_by('-timestamp')[:10]
+    # activities = Activity.objects.filter(user=request.user).order_by('-timestamp')[:5]
+    # Change the activities query to:
+    activities = Activity.objects.filter(user=request.user).select_related('user').order_by('-timestamp')[:5]
 
     # Fetch calendar events (current month ±1 month)
     today = timezone.now().date()
