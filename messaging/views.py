@@ -12,6 +12,7 @@ from django.db import models
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import logging
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -184,6 +185,7 @@ def messaging(request):
     return render(request, 'messaging/messaging.html', context)
 
 @login_required
+@transaction.atomic
 def send_message(request):
     logger.info(f"Received {request.method} request to /messaging/send/")
     
@@ -250,10 +252,11 @@ def send_message(request):
             ).first()
             
             if not conversation:
-                conversation = Conversation.objects.create()
-                conversation.participants.add(request.user, recipient)
-                is_new_conversation = True
-                logger.info(f"Created new conversation: {conversation.id}")
+                with transaction.atomic():
+                    conversation = Conversation.objects.create()
+                    conversation.participants.add(request.user, recipient)
+                    is_new_conversation = True
+                    logger.info(f"Created new conversation: {conversation.id}")
     except Conversation.DoesNotExist:
         logger.error(f"Conversation not found: ID {conversation_id}")
         return JsonResponse({
@@ -268,91 +271,94 @@ def send_message(request):
         }, status=400)
 
     try:
-        message = Message.objects.create(
-            conversation=conversation,
-            sender=request.user,
-            text=form.cleaned_data.get('message', ''),
-            attachment=form.cleaned_data.get('attachment')
-        )
-        
-        conversation.updated_at = timezone.now()
-        conversation.save()
-        
-        # Get recipient profile data for the response
-        recipient_profile = getattr(recipient, 'profile', None)
-        recipient_avatar = (
-            recipient_profile.profile_picture.url 
-            if recipient_profile and recipient_profile.profile_picture 
-            else '/static/default-avatar.png'
-        )
-        
-        # Prepare response data
-        response_data = {
-            'status': 'success',
-            'message_id': message.id,
-            'conversation_id': conversation.id,
-            'timestamp': message.timestamp.isoformat(),
-            'is_new_conversation': is_new_conversation,
-        }
-        
-        # Add conversation data if this is a new conversation
-        if is_new_conversation:
-            response_data['conversation_data'] = {
-                'id': conversation.id,
-                'participant_id': recipient.id,
-                'participant_name': recipient.username,
-                'participant_avatar': recipient_avatar,
-                'participant_initials': recipient.username[:2].upper(),
-                'last_message_preview': message.text[:50] + ('...' if len(message.text) > 50 else ''),
-                'last_message_time': message.timestamp,
-                'unread_count': 0,
-                'status': (
-                    'Online' if (
-                        recipient_profile and 
-                        (recipient_profile.is_online or 
-                        (timezone.now() - recipient_profile.last_seen).total_seconds() < 300)
-                    ) else 'Offline'
-                )
+        with transaction.atomic():
+            message = Message.objects.create(
+                conversation=conversation,
+                sender=request.user,
+                text=form.cleaned_data.get('message', ''),
+                attachment=form.cleaned_data.get('attachment')
+            )
+            
+            conversation.updated_at = timezone.now()
+            conversation.save()
+            
+            # Get recipient profile data for the response
+            recipient_profile = getattr(recipient, 'profile', None)
+            recipient_avatar = (
+                recipient_profile.profile_picture.url 
+                if recipient_profile and recipient_profile.profile_picture 
+                else '/static/default-avatar.png'
+            )
+            
+            # Prepare response data
+            response_data = {
+                'status': 'success',
+                'message_id': message.id,
+                'conversation_id': conversation.id,
+                'timestamp': message.timestamp.isoformat(),
+                'is_new_conversation': is_new_conversation,
             }
+            
+            # Add conversation data if this is a new conversation
+            if is_new_conversation:
+                response_data['conversation_data'] = {
+                    'id': conversation.id,
+                    'participant_id': recipient.id,
+                    'participant_name': recipient.username,
+                    'participant_avatar': recipient_avatar,
+                    'participant_initials': recipient.username[:2].upper(),
+                    'last_message_preview': message.text[:50] + ('...' if len(message.text) > 50 else ''),
+                    'last_message_time': message.timestamp,
+                    'unread_count': 0,
+                    'status': (
+                        'Online' if (
+                            recipient_profile and 
+                            (recipient_profile.is_online or 
+                            (timezone.now() - recipient_profile.last_seen).total_seconds() < 300)
+                        ) else 'Offline'
+                    )
+                }
 
-        # Send WebSocket message
-        try:
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f"messaging_{conversation.id}",
-                {
-                    'type': 'chat.message',
-                    'message': {
-                        'id': message.id,
-                        'text': message.text,
-                        'timestamp': message.timestamp.isoformat(),
-                        'is_sent': False,
-                        'sender_id': request.user.id,
-                        'user': {
-                            'name': request.user.username,
-                            'avatar': getattr(request.user, 'avatar', '/static/default-avatar.png'),
-                            'initials': request.user.username[:2].upper()
-                        },
-                        'attachment': {
-                            'url': message.attachment.url if message.attachment else None,
-                            'name': message.attachment.name if message.attachment else None
+            # Send WebSocket message
+            try:
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f"messaging_{conversation.id}",
+                    {
+                        'type': 'chat.message',
+                        'message': {
+                            'id': message.id,
+                            'text': message.text,
+                            'timestamp': message.timestamp.isoformat(),
+                            'is_sent': False,
+                            'sender_id': request.user.id,
+                            'user': {
+                                'name': request.user.username,
+                                'avatar': getattr(request.user, 'avatar', '/static/default-avatar.png'),
+                                'initials': request.user.username[:2].upper()
+                            },
+                            'attachment': {
+                                'url': message.attachment.url if message.attachment else None,
+                                'name': message.attachment.name if message.attachment else None
+                            }
                         }
                     }
-                }
+                )
+            except Exception as e:
+                logger.error(f"WebSocket error: {str(e)}")
+                # Even if WebSocket fails, we still return success since message is saved
+                pass
+
+            Notification.objects.create(
+                user=recipient,
+                message=f"New message from {request.user.username}",
+                notification_type='chat',
+                related_url=f"/messaging/?chat={conversation.id}",
+                related_id=conversation.id
             )
-        except Exception as e:
-            logger.error(f"WebSocket error: {str(e)}")
 
-        Notification.objects.create(
-            user=recipient,
-            message=f"New message from {request.user.username}",
-            notification_type='chat',
-            related_url=f"/messaging/?chat={conversation.id}",
-            related_id=conversation.id  # Store conversation ID for easy reference
-        )
-
-        logger.info(f"Message successfully sent: ID {message.id}")
-        return JsonResponse(response_data)
+            logger.info(f"Message successfully sent: ID {message.id}")
+            return JsonResponse(response_data)
     except Exception as e:
         logger.error(f"Error creating message: {str(e)}")
         return JsonResponse({

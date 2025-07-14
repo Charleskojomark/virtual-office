@@ -77,8 +77,12 @@
                 <div class="chat-details">
                     <h2 class="chat-name">{{ active_chat.participant_name }}</h2>
                     <span class="chat-status">
-                        <span class="online-dot">•</span> {{ active_chat.status }}
+                        {% if active_chat.status == "Offline" %}
+                            <span class="online-dot">•</span>
+                        {% endif %}
+                        {{ active_chat.status }}
                     </span>
+
                 </div>
             </div>
         </div>
@@ -1298,8 +1302,12 @@ if (closeButton) {
         // Update status
         const chatStatus = chatHeader.querySelector('.chat-status');
         if (chatStatus) {
-            chatStatus.innerHTML = `<span class="online-dot">•</span> ${participantData.status || 'Offline'}`;
+            const status = participantData.status || 'Offline';
+            chatStatus.innerHTML = status === 'Offline'
+                ? `<span class="online-dot">•</span> ${status}`
+                : `${status}`;
         }
+
     }
 
     function clearChatHeader() {
@@ -1328,54 +1336,138 @@ if (closeButton) {
         url.searchParams.delete('chat');
         window.history.pushState({}, '', url);
     }
+    async function refreshMessages() {
+    if (!activeConversationId) return;
+    
+    try {
+        const response = await fetch(`/messaging/api/messages/${activeConversationId}/`, {
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
 
-    function initializeWebSocket() {
-        if (activeConversationId && !chatSocket) {
-            const wsScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-            const wsUrl = `${wsScheme}${window.location.host}/ws/messaging/${activeConversationId}/`;
-
-            console.log('Connecting to WebSocket:', wsUrl);
-            chatSocket = new WebSocket(wsUrl);
-
-            chatSocket.onopen = function (e) {
-                console.log('WebSocket connection established');
-                reconnectAttempts = 0;
-            };
-
-            chatSocket.onmessage = function (e) {
-                console.log('WebSocket message received:', e.data);
-                try {
-                    const data = JSON.parse(e.data);
-                    if (data.message) {
-                        addMessageToChat(data.message);
-                        if (!data.message.is_sent) {
-                            updateUnreadCount(activeConversationId);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error parsing WebSocket message:', error);
-                }
-            };
-
-            chatSocket.onclose = function (e) {
-                console.log('WebSocket connection closed:', e.code, e.reason);
-                chatSocket = null;
-
-                if (reconnectAttempts < maxReconnectAttempts) {
-                    reconnectAttempts++;
-                    const delay = reconnectDelay * Math.pow(2, reconnectAttempts - 1);
-                    console.log(`Attempting to reconnect in ${delay}ms...`);
-                    setTimeout(initializeWebSocket, delay);
-                } else {
-                    console.error('Max reconnection attempts reached');
-                }
-            };
-
-            chatSocket.onerror = function (err) {
-                console.error('WebSocket error:', err);
-            };
+        if (!response.ok) {
+            throw new Error('Failed to fetch messages');
         }
+
+        const data = await response.json();
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.innerHTML = '';
+
+        data.messages.forEach(msg => {
+            const message = document.createElement('div');
+            message.className = `message-group ${msg.is_sent ? 'sent' : 'received'}`;
+            message.innerHTML = `
+                ${!msg.is_sent ? `
+                <div class="message-avatar">
+                    <img src="${msg.sender.avatar || '/static/default-avatar.png'}" 
+                         alt="${msg.sender.username}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="avatar-fallback">${msg.sender.username.slice(0, 2).toUpperCase()}</div>
+                </div>` : ''}
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <p class="message-text">${msg.text}</p>
+                        ${msg.attachment && msg.attachment.url ? `
+                        <div class="message-attachment">
+                            <span class="attachment-icon">📎</span>
+                            <a href="${msg.attachment.url}" class="attachment-name">${msg.attachment.name}</a>
+                        </div>` : ''}
+                    </div>
+                    <div class="message-meta">
+                        <span class="message-time">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        ${msg.is_sent ? `<span class="message-status">${msg.read ? '✓✓' : '✓'}</span>` : ''}
+                    </div>
+                </div>`;
+            messagesContainer.appendChild(message);
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        await fetch(`/messaging/api/messages/${activeConversationId}/read/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+
+        // Update unread badges
+        const conversationItem = document.querySelector(`.conversation-item[data-chat-id="${activeConversationId}"]`);
+        if (conversationItem) {
+            const unreadBadge = conversationItem.querySelector('.unread-badge');
+            if (unreadBadge) {
+                unreadBadge.remove();
+            }
+        }
+
+        const notificationBadge = document.querySelector('.notification-badge');
+        if (notificationBadge) {
+            const currentCount = parseInt(notificationBadge.textContent) || 0;
+            const unreadCount = parseInt(unreadBadge?.textContent || '0');
+            notificationBadge.textContent = Math.max(0, currentCount - unreadCount);
+        }
+    } catch (error) {
+        console.error('Error refreshing messages:', error);
     }
+}
+
+    // Update the WebSocket initialization code
+function initializeWebSocket() {
+    if (activeConversationId) {
+        // Close existing connection if any
+        if (chatSocket) {
+            chatSocket.close();
+        }
+
+        const wsScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsUrl = `${wsScheme}${window.location.host}/ws/messaging/${activeConversationId}/?token=${getCookie('csrftoken')}`;
+
+        console.log('Connecting to WebSocket:', wsUrl);
+        chatSocket = new WebSocket(wsUrl);
+
+        chatSocket.onopen = function(e) {
+            console.log('WebSocket connection established');
+            reconnectAttempts = 0;
+            // Send a ping to keep connection alive
+            setInterval(() => {
+                if (chatSocket.readyState === WebSocket.OPEN) {
+                    chatSocket.send(JSON.stringify({type: 'ping'}));
+                }
+            }, 30000); // Send ping every 30 seconds
+        };
+
+        chatSocket.onmessage = function(e) {
+            console.log('WebSocket message received:', e.data);
+            try {
+                const data = JSON.parse(e.data);
+                if (data.type === 'pong') return;
+                
+                if (data.message) {
+                    addMessageToChat(data.message);
+                    if (!data.message.is_sent) {
+                        updateUnreadCount(activeConversationId);
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.log('WebSocket connection closed:', e.code, e.reason);
+            chatSocket = null;
+
+            if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                const delay = Math.min(reconnectDelay * Math.pow(2, reconnectAttempts - 1), 30000);
+                console.log(`Attempting to reconnect in ${delay}ms...`);
+                setTimeout(initializeWebSocket, delay);
+            } else {
+                console.error('Max reconnection attempts reached');
+            }
+        };
+
+        chatSocket.onerror = function(err) {
+            console.error('WebSocket error:', err);
+        };
+    }
+}
 
     function addMessageToChat(data) {
         const messagesContainer = document.getElementById('chatMessages');
@@ -1588,7 +1680,60 @@ if (closeButton) {
         };
         updateChatHeader(participantData);
     }
+    function fetchMessages() {
+    if (!activeConversationId) return;
 
+    fetch(`/messaging/api/messages/${activeConversationId}/`, {
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch messages');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.innerHTML = '';
+
+        data.messages.forEach(msg => {
+            const message = document.createElement('div');
+            message.className = `message-group ${msg.is_sent ? 'sent' : 'received'}`;
+            message.innerHTML = `
+                ${!msg.is_sent ? `
+                <div class="message-avatar">
+                    <img src="${msg.sender.avatar || '/static/default-avatar.png'}" 
+                         alt="${msg.sender.username}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="avatar-fallback">${msg.sender.username.slice(0, 2).toUpperCase()}</div>
+                </div>` : ''}
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <p class="message-text">${msg.text}</p>
+                        ${msg.attachment && msg.attachment.url ? `
+                        <div class="message-attachment">
+                            <span class="attachment-icon">📎</span>
+                            <a href="${msg.attachment.url}" class="attachment-name">${msg.attachment.name}</a>
+                        </div>` : ''}
+                    </div>
+                    <div class="message-meta">
+                        <span class="message-time">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        ${msg.is_sent ? `<span class="message-status">${msg.read ? '✓✓' : '✓'}</span>` : ''}
+                    </div>
+                </div>`;
+            messagesContainer.appendChild(message);
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Mark messages as read
+        fetch(`/messaging/api/messages/${activeConversationId}/read/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        }).catch(err => console.error('Error marking as read:', err));
+    })
+    .catch(error => console.error('Error fetching messages:', error));
+}
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const recipientId = urlParams.get('recipient');
@@ -1641,105 +1786,60 @@ if (closeButton) {
         }
 
         initializeWebSocket();
+        refreshMessages();
+    
+    // Set up periodic refresh (as fallback for WebSocket)
+        setInterval(refreshMessages, 30000); // Refresh every 30 seconds
     });
 
     document.querySelectorAll('.conversation-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            activeConversationId = item.dataset.chatId;
-            const recipientId = item.dataset.recipientId;
+    item.addEventListener('click', async () => {
+        document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        activeConversationId = item.dataset.chatId;
+        const recipientId = item.dataset.recipientId;
 
-            if (!recipientId) {
-                console.error('No recipient ID found on conversation item:', item.dataset);
-                return;
+        if (!recipientId) {
+            console.error('No recipient ID found on conversation item:', item.dataset);
+            return;
+        }
+
+        const participantData = {
+            id: recipientId,
+            name: item.querySelector('.conversation-name').textContent,
+            avatar: item.querySelector('.conversation-avatar img')?.src || null,
+            initials: item.querySelector('.avatar-fallback').textContent,
+            status: item.dataset.status || 'Offline'
+        };
+        updateChatHeader(participantData);
+
+        updateUrlWithRecipientId(recipientId);
+
+        if (chatSocket) chatSocket.close();
+        initializeWebSocket();
+
+        fetchMessages();
+
+        const unreadBadge = item.querySelector('.unread-badge');
+        if (unreadBadge) {
+            const unreadCount = parseInt(unreadBadge.textContent) || 0;
+            unreadBadge.remove();
+
+            const notificationBadge = document.querySelector('.notification-badge');
+            if (notificationBadge) {
+                const currentCount = parseInt(notificationBadge.textContent) || 0;
+                notificationBadge.textContent = Math.max(0, currentCount - unreadCount);
             }
-
-            const participantData = {
-                id: recipientId,
-                name: item.querySelector('.conversation-name').textContent,
-                avatar: item.querySelector('.conversation-avatar img')?.src || null,
-                initials: item.querySelector('.avatar-fallback').textContent,
-                status: item.dataset.status || 'Offline'
-            };
-            updateChatHeader(participantData);
-
-            updateUrlWithRecipientId(recipientId);
-
-            if (chatSocket) chatSocket.close();
-            initializeWebSocket();
-
-            try {
-                const response = await fetch(`/messaging/api/messages/${activeConversationId}/`, {
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch messages');
-                }
-
-                const data = await response.json();
-                const messagesContainer = document.getElementById('chatMessages');
-                messagesContainer.innerHTML = '';
-
-                data.messages.forEach(msg => {
-                    const message = document.createElement('div');
-                    message.className = `message-group ${msg.is_sent ? 'sent' : 'received'}`;
-                    message.innerHTML = `
-                        ${!msg.is_sent ? `
-                        <div class="message-avatar">
-                            <img src="${msg.sender.avatar || '/static/default-avatar.png'}" 
-                                 alt="${msg.sender.username}" 
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                            <div class="avatar-fallback">${msg.sender.username.slice(0, 2).toUpperCase()}</div>
-                        </div>` : ''}
-                        <div class="message-content">
-                            <div class="message-bubble">
-                                <p class="message-text">${msg.text}</p>
-                                ${msg.attachment && msg.attachment.url ? `
-                                <div class="message-attachment">
-                                    <span class="attachment-icon">📎</span>
-                                    <a href="${msg.attachment.url}" class="attachment-name">${msg.attachment.name}</a>
-                                </div>` : ''}
-                            </div>
-                            <div class="message-meta">
-                                <span class="message-time">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                ${msg.is_sent ? `<span class="message-status">${msg.read ? '✓✓' : '✓'}</span>` : ''}
-                            </div>
-                        </div>`;
-                    messagesContainer.appendChild(message);
-                });
-
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-                await fetch(`/messaging/api/messages/${activeConversationId}/read/`, {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
-                });
-
-                const unreadBadge = item.querySelector('.unread-badge');
-                if (unreadBadge) {
-                    unreadBadge.remove();
-                }
-
-                const notificationBadge = document.querySelector('.notification-badge');
-                if (notificationBadge) {
-                    const currentCount = parseInt(notificationBadge.textContent) || 0;
-                    const unreadCount = parseInt(unreadBadge?.textContent || '0');
-                    notificationBadge.textContent = Math.max(0, currentCount - unreadCount);
-                }
-            } catch (error) {
-                console.error('Error fetching messages:', error);
-            }
-        });
-
-        item.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                item.click();
-            }
-        });
+        }
     });
+
+    item.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            item.click();
+        }
+    });
+});
 
     window.addEventListener('popstate', () => {
         const urlParams = new URLSearchParams(window.location.search);

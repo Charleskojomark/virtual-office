@@ -21072,3 +21072,582 @@ Not Found: /.well-known/appspecific/com.chrome.devtools.json
 Not Found: /.well-known/appspecific/com.chrome.devtools.json
 Not Found: /static/default-avatar.png
 Not Found: /favicon.ico
+Watching for file changes with StatReloader
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET / HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 19436
+"GET /static/images/ablogo.png HTTP/1.1" 304 0
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3321
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 29727
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/pwa.js HTTP/1.1" 200 1368
+"GET /static/css/main.css HTTP/1.1" 200 19579
+"GET /media/profile_pics/-kvtj1v%20(1)%20(1)_zTbINfu.jpg HTTP/1.1" 200 205144
+"GET /static/app/manifest.json HTTP/1.1" 200 593
+"GET /serviceworker.js HTTP/1.1" 200 1644
+"GET /static/icons/favicon.png HTTP/1.1" 200 2734
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/icons/icon-192x192.png HTTP/1.1" 200 13965
+"GET / HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 19436
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /static/icons/icon-192x192.png HTTP/1.1" 200 13965
+"GET /static/icons/icon-512x512.png HTTP/1.1" 200 81757
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /dashboard/ HTTP/1.1" 200 29721
+"GET /dashboard/ HTTP/1.1" 200 29721
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /tasks/ HTTP/1.1" 200 72937
+"GET /tasks/ HTTP/1.1" 200 72937
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /tasks/1/ HTTP/1.1" 200 290
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /schedule/ HTTP/1.1" 200 43336
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /schedule/api/events/?start=2025-06-29T00%3A00%3A00%2B01%3A00&end=2025-08-10T00%3A00%3A00%2B01%3A00 HTTP/1.1" 200 447
+"GET /schedule/api/participants/ HTTP/1.1" 200 296
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /messaging/ HTTP/1.1" 200 73290
+"GET /media/profile_pics/ablogo.jpeg HTTP/1.1" 200 12598
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /static/default-avatar.png HTTP/1.1" 404 1813
+Not Found: /ws/messaging/2/
+"GET /ws/messaging/2/ HTTP/1.1" 404 3333
+- Broken pipe from ('127.0.0.1', 53110)
+"GET /static/default-avatar.png HTTP/1.1" 404 1813
+"GET /messaging/api/messages/2/ HTTP/1.1" 200 3403
+"GET /static/default-avatar.png HTTP/1.1" 404 1813
+"POST /messaging/api/messages/2/read/ HTTP/1.1" 200 21
+"GET /serviceworker.js HTTP/1.1" 304 0
+Not Found: /ws/messaging/2/
+"GET /ws/messaging/2/ HTTP/1.1" 404 3333
+- Broken pipe from ('127.0.0.1', 53124)
+Not Found: /ws/messaging/2/
+"GET /ws/messaging/2/ HTTP/1.1" 404 3333
+- Broken pipe from ('127.0.0.1', 53150)
+"GET /reports/ HTTP/1.1" 200 33663
+"GET /reports/ HTTP/1.1" 200 33663
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /serviceworker.js HTTP/1.1" 304 0
+"GET /settings/ HTTP/1.1" 200 37133
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /serviceworker.js HTTP/1.1" 304 0
+"POST /accounts/logout/ HTTP/1.1" 302 0
+"GET /accounts/ HTTP/1.1" 200 4808
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /serviceworker.js HTTP/1.1" 200 1644
+"GET /accounts/login/ HTTP/1.1" 200 19436
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 3432
+"GET /serviceworker.js HTTP/1.1" 304 0
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /serviceworker.js HTTP/1.1" 200 1644
+"GET /accounts/login/ HTTP/1.1" 200 19436
+"GET /static/images/ablogo.png HTTP/1.1" 200 86814
+"GET /serviceworker.js HTTP/1.1" 304 0
+Not Found: /static/default-avatar.png
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Hi admin'], 'conversation_id': ['4'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 42
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Hello'], 'conversation_id': ['4'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 43
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['4'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 44
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['4'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 45
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hello'], 'conversation_id': ['4'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 46
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hello'], 'conversation_id': ['4'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 47
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/api/messages/4/read/
+Not Found: /static/default-avatar.png
+Forbidden (CSRF token from POST incorrect.): /accounts/logout/
+Not Found: /superuser/dashboard/
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['3'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Invalid recipient: Cannot send message to yourself
+Bad Request: /messaging/send/
+Forbidden (CSRF token from POST incorrect.): /accounts/logout/
+Not Found: /favicon.ico
+Forbidden (CSRF token from POST incorrect.): /accounts/logout/
+Forbidden (CSRF token from POST incorrect.): /accounts/logout/
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/None
+Not Found: /favicon.ico
+Forbidden (CSRF token from POST incorrect.): /accounts/login/
+Not Found: /favicon.ico
+Forbidden (CSRF token from POST incorrect.): /accounts/login/
+Not Found: /messaging/api/messages/4/read/
+Not Found: /static/default-avatar.png
+Forbidden (CSRF token from POST incorrect.): /accounts/logout/
+Invalid HTTP_HOST header: 'db2117071d04.ngrok-free.app'. You may need to add 'db2117071d04.ngrok-free.app' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/deprecation.py", line 133, in __call__
+    response = self.process_request(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/http/request.py", line 150, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'db2117071d04.ngrok-free.app'. You may need to add 'db2117071d04.ngrok-free.app' to ALLOWED_HOSTS.
+Invalid HTTP_HOST header: 'db2117071d04.ngrok-free.app'. You may need to add 'db2117071d04.ngrok-free.app' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/utils/deprecation.py", line 133, in __call__
+    response = self.process_request(request)
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/Users/charles/DEV/venv/lib/python3.9/site-packages/django/http/request.py", line 150, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'db2117071d04.ngrok-free.app'. You may need to add 'db2117071d04.ngrok-free.app' to ALLOWED_HOSTS.
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 48
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Error sending message: Unexpected token \'<\', "<!DOCTYPE "... is not valid JSON'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 49
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Error sending message: Unexpected token \'<\', "<!DOCTYPE "... is not valid JSON'], 'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 50
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi mk'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 51
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['ok'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 52
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['okay'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 53
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hi'], 'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 54
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['how are you?'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 55
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {'attachment': [<InMemoryUploadedFile: Screenshot 2025-07-13 at 23.53.48.png (image/png)>]}>
+Message successfully sent: ID 56
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hu re u'], 'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 57
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['I am fine'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 58
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['We are here'], 'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 59
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Okay'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 60
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/ablogo.jpeg
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['hmmm'], 'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 61
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Okay'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 62
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Nice one'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 63
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['okay bro'], 'conversation_id': ['1'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 64
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /favicon.ico
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Hello John Doe'], 'conversation_id': ['5'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 65
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Hi Admin'], 'conversation_id': ['5'], 'recipient_id': ['4']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 66
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Here I am'], 'conversation_id': ['5'], 'recipient_id': ['2']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 67
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /messaging/profile_pics/-kvtj1v (1) (1)_zTbINfu.jpg
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Received POST request to /messaging/send/
+POST data: <QueryDict: {'message': ['Hi ChARLES'], 'conversation_id': ['1'], 'recipient_id': ['1']}>, FILES: <MultiValueDict: {}>
+Message successfully sent: ID 68
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
+Not Found: /static/default-avatar.png
